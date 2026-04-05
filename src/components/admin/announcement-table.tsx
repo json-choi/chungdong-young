@@ -116,14 +116,10 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
                     </Button>
                   </Link>
                   <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-church-crimson hover:text-church-crimson"
-                      >
-                        삭제
-                      </Button>
+                    <AlertDialogTrigger
+                      className="inline-flex items-center justify-center h-8 px-3 text-sm text-church-crimson hover:text-church-crimson hover:bg-accent rounded-md"
+                    >
+                      삭제
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
