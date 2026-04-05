@@ -5,6 +5,7 @@ import type { Announcement } from "@/server/db/schema";
 
 interface AnnouncementCardProps {
   announcement: Announcement;
+  isLcp?: boolean;
 }
 
 function getStatusInfo(startAt: Date, endAt: Date | null) {
@@ -25,7 +26,7 @@ function getStatusInfo(startAt: Date, endAt: Date | null) {
   return { label: "진행중", variant: "ongoing" as const };
 }
 
-export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
+export function AnnouncementCard({ announcement, isLcp }: AnnouncementCardProps) {
   const isHighPriority = announcement.priority >= 10;
   const status = getStatusInfo(announcement.startAt, announcement.endAt);
 
@@ -49,7 +50,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, 600px"
-                priority={false}
+                priority={isLcp}
               />
             </div>
           )}

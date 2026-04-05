@@ -32,8 +32,8 @@ export default async function PublicPage() {
 
   return (
     <div className="space-y-4">
-      {items.map((item) => (
-        <AnnouncementCard key={item.id} announcement={item} />
+      {items.map((item, index) => (
+        <AnnouncementCard key={item.id} announcement={item} isLcp={index === 0} />
       ))}
     </div>
   );
