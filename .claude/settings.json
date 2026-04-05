@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Read(//Users/jaesong/.claude/bin/**)",
-      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack --use-pnpm --yes)"
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack --use-pnpm --yes)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm dlx:*)"
     ]
   }
 }
