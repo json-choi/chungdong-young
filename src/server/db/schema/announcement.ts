@@ -19,8 +19,16 @@ export const announcements = pgTable(
     bodyHtml: text("body_html").notNull(),
     linkUrl: text("link_url"),
     priority: integer("priority").notNull().default(0),
+    /* Visibility */
+    showOnFeed: boolean("show_on_feed").notNull().default(true),
+    showOnCalendar: boolean("show_on_calendar").notNull().default(false),
+    /* Publication period — when this post appears in the feed */
     startAt: timestamp("start_at", { withTimezone: true }).notNull(),
     endAt: timestamp("end_at", { withTimezone: true }),
+    /* Calendar event fields */
+    isAllDay: boolean("is_all_day").notNull().default(false),
+    eventStartAt: timestamp("event_start_at", { withTimezone: true }),
+    eventEndAt: timestamp("event_end_at", { withTimezone: true }),
     isPublished: boolean("is_published").notNull().default(false),
     imageUrl: text("image_url"),
     imageBlobPath: text("image_blob_path"),
