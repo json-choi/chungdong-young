@@ -16,7 +16,7 @@ import {
   differenceInCalendarDays,
 } from "date-fns";
 import { ko } from "date-fns/locale";
-import type { Announcement } from "@/server/db/schema";
+import type { AnnouncementListItem as Announcement } from "./types";
 
 interface CalendarViewProps {
   items: Announcement[];

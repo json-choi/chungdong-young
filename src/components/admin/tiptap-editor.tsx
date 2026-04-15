@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -41,6 +42,17 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     },
   });
 
+  // Sync external content changes (e.g. draft restore from localStorage) into
+  // the editor. Tiptap's `useEditor({ content })` only reads `content` at
+  // initialization, so a later prop change has no effect without this effect.
+  // Guard with HTML equality to avoid feedback loops from user typing.
+  useEffect(() => {
+    if (!editor) return;
+    if (editor.isDestroyed) return;
+    if (content === editor.getHTML()) return;
+    editor.commands.setContent(content, { emitUpdate: false });
+  }, [content, editor]);
+
   if (!editor) return null;
 
   function setLink() {
@@ -64,7 +76,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
 
   return (
     <div className="border rounded-md overflow-hidden">
-      <div className="flex gap-1 p-2 border-b bg-gray-50 flex-wrap">
+      <div className="flex gap-1 p-2 border-b bg-church-border-soft/50 flex-wrap">
         <Button
           type="button"
           variant={editor.isActive("bold") ? "default" : "ghost"}

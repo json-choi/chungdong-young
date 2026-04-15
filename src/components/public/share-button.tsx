@@ -36,12 +36,26 @@ export function ShareButton({ title }: ShareButtonProps) {
       onClick={handleShare}
       disabled={busy}
       aria-label="공지 공유"
-      className="focus-ring inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-lg border border-church-border bg-church-surface text-sm font-medium text-church-text hover:bg-church-border-soft transition-colors disabled:opacity-60 cursor-pointer"
+      title="공유"
+      className="focus-ring inline-flex items-center justify-center w-10 h-10 rounded-full text-church-muted hover:text-church-text hover:bg-church-border-soft transition-colors disabled:opacity-60 cursor-pointer"
     >
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a3 3 0 10-1.41-1.41m0-8.632a3 3 0 101.41-1.41M9 12l6-3m0 0v6l-6-3" />
+      <svg
+        className="w-4.5 h-4.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {/* Lucide share-2 — three nodes connected by lines */}
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
       </svg>
-      공유
     </button>
   );
 }

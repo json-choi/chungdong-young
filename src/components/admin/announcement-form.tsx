@@ -1,15 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TiptapEditor } from "./tiptap-editor";
-import { ImageUploader } from "./image-uploader";
+import { ImageUploader, type GalleryImage } from "./image-uploader";
+import { ImageDisplaySettings } from "./image-display-settings";
+import { QrCodeDialog } from "./qr-code-dialog";
 import { toast } from "sonner";
 import type { Announcement } from "@/server/db/schema";
+import type {
+  ImageAspect,
+  ImageFit,
+} from "@/server/validation/announcement";
+import { useDraft } from "@/lib/use-draft";
+
+interface Draft {
+  title: string;
+  bodyHtml: string;
+  linkUrl: string;
+  priority: number;
+  showOnFeed: boolean;
+  showOnCalendar: boolean;
+  startAt: string;
+  endAt: string;
+  isAllDay: boolean;
+  eventStartAt: string;
+  eventEndAt: string;
+  isPublished: boolean;
+  images: GalleryImage[];
+  imageAspect: ImageAspect;
+  imageFit: ImageFit;
+}
 
 interface AnnouncementFormProps {
   announcement?: Announcement;
@@ -53,11 +78,87 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
   const [isPublished, setIsPublished] = useState(
     announcement?.isPublished ?? false
   );
-  const [imageUrl, setImageUrl] = useState(announcement?.imageUrl ?? "");
-  const [imageBlobPath, setImageBlobPath] = useState(
-    announcement?.imageBlobPath ?? ""
+  const [images, setImages] = useState<GalleryImage[]>(() => {
+    const urls = announcement?.imageUrls ?? [];
+    const paths = announcement?.imageBlobPaths ?? [];
+    const focals = announcement?.imageFocals ?? [];
+    return urls.map((url, i) => ({
+      url,
+      path: paths[i] ?? "",
+      focal: focals[i] ?? "50% 50%",
+    }));
+  });
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageAspect, setImageAspect] = useState<ImageAspect>(
+    (announcement?.imageAspect as ImageAspect) ?? "16:9"
+  );
+  const [imageFit, setImageFit] = useState<ImageFit>(
+    (announcement?.imageFit as ImageFit) ?? "cover"
   );
   const [saving, setSaving] = useState(false);
+
+  // Draft auto-save — prevents data loss on accidental refresh / close.
+  // Separate keys for new vs existing posts so drafts don't leak across entries.
+  const draftKey = isEditing ? `edit:${announcement.id}` : "new";
+  const draftData: Draft = useMemo(
+    () => ({
+      title,
+      bodyHtml,
+      linkUrl,
+      priority,
+      showOnFeed,
+      showOnCalendar,
+      startAt,
+      endAt,
+      isAllDay,
+      eventStartAt,
+      eventEndAt,
+      isPublished,
+      images,
+      imageAspect,
+      imageFit,
+    }),
+    [
+      title,
+      bodyHtml,
+      linkUrl,
+      priority,
+      showOnFeed,
+      showOnCalendar,
+      startAt,
+      endAt,
+      isAllDay,
+      eventStartAt,
+      eventEndAt,
+      isPublished,
+      images,
+      imageAspect,
+      imageFit,
+    ]
+  );
+
+  const { savedAt, clear: clearDraft } = useDraft<Draft>(
+    draftKey,
+    draftData,
+    (restored) => {
+      setTitle(restored.title);
+      setBodyHtml(restored.bodyHtml);
+      setLinkUrl(restored.linkUrl);
+      setPriority(restored.priority);
+      setShowOnFeed(restored.showOnFeed);
+      setShowOnCalendar(restored.showOnCalendar);
+      setStartAt(restored.startAt);
+      setEndAt(restored.endAt);
+      setIsAllDay(restored.isAllDay);
+      setEventStartAt(restored.eventStartAt);
+      setEventEndAt(restored.eventEndAt);
+      setIsPublished(restored.isPublished);
+      setImages(restored.images ?? []);
+      setImageAspect(restored.imageAspect ?? "16:9");
+      setImageFit(restored.imageFit ?? "cover");
+      toast.info("이전에 작성하던 내용을 복구했어요");
+    }
+  );
 
   const neitherSelected = !showOnFeed && !showOnCalendar;
 
@@ -85,8 +186,11 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
         eventStartAt: showOnCalendar ? eventStartAt : "",
         eventEndAt: showOnCalendar ? eventEndAt : "",
         isPublished,
-        imageUrl,
-        imageBlobPath,
+        imageUrls: images.map((img) => img.url),
+        imageBlobPaths: images.map((img) => img.path),
+        imageFocals: images.map((img) => img.focal),
+        imageAspect,
+        imageFit,
       };
 
       const url = isEditing
@@ -102,6 +206,7 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
 
       if (!res.ok) throw new Error("Failed to save");
 
+      clearDraft();
       toast.success(isEditing ? "수정되었습니다" : "작성되었습니다");
       router.push("/admin/announcements");
       router.refresh();
@@ -178,18 +283,27 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
             <div className="space-y-5 mt-5">
               <div className="space-y-2">
                 <Label>이미지</Label>
-                <ImageUploader
-                  imageUrl={imageUrl}
-                  onUpload={(url, path) => {
-                    setImageUrl(url);
-                    setImageBlobPath(path);
-                  }}
-                  onRemove={() => {
-                    setImageUrl("");
-                    setImageBlobPath("");
-                  }}
-                />
+                <ImageUploader images={images} onChange={setImages} />
               </div>
+
+              {images.length > 0 && (
+                <ImageDisplaySettings
+                  images={images}
+                  activeIndex={Math.min(activeImageIndex, images.length - 1)}
+                  onActiveIndexChange={setActiveImageIndex}
+                  aspect={imageAspect}
+                  fit={imageFit}
+                  onAspectChange={setImageAspect}
+                  onFitChange={setImageFit}
+                  onFocalChange={(focal) =>
+                    setImages((curr) =>
+                      curr.map((img, i) =>
+                        i === activeImageIndex ? { ...img, focal } : img
+                      )
+                    )
+                  }
+                />
+              )}
               <div className="space-y-2">
                 <Label htmlFor="linkUrl">외부 링크</Label>
                 <Input
@@ -206,6 +320,34 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
 
         {/* ─────────── Right: Sidebar settings ─────────── */}
         <aside className="space-y-6 lg:sticky lg:top-6 self-start">
+          {/* QR code (edit mode only) */}
+          {isEditing && (
+            <section className="card-base p-5">
+              <SectionTitle
+                title="QR 코드"
+                compact
+                description="이 공지의 공개 링크를 QR로 공유할 수 있어요"
+              />
+              <QrCodeDialog
+                announcementId={announcement.id}
+                title={title || "(제목 없음)"}
+                isPublished={isPublished}
+                trigger={
+                  <button
+                    type="button"
+                    className="focus-ring mt-4 w-full inline-flex items-center justify-center gap-2 h-10 rounded-md border border-church-border text-[13px] font-medium text-church-text hover:bg-church-border-soft transition-colors cursor-pointer"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m0 14v1m8-8h-1M5 12H4m11.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h3v3H7V7zM14 7h3v3h-3V7zM7 14h3v3H7v-3zM14 14h.01M17 14h.01M14 17h.01M17 17h.01" />
+                    </svg>
+                    QR 코드 생성
+                  </button>
+                }
+              />
+            </section>
+          )}
+
           {/* Publish status */}
           <section className="card-base p-5">
             <SectionTitle title="게시" compact />
@@ -340,10 +482,27 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
       </div>
 
       {/* Sticky action bar */}
-      <div className="fixed bottom-0 inset-x-0 lg:left-64 z-20 border-t border-church-border bg-white/85 backdrop-blur">
+      <div className="fixed bottom-0 inset-x-0 lg:left-64 z-20 border-t border-church-border bg-church-surface/85 backdrop-blur">
         <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
-          <p className="text-[12.5px] text-church-muted hidden sm:block">
-            {isEditing ? "변경사항은 저장을 눌러야 반영됩니다" : "새 공지를 작성 중입니다"}
+          <p className="text-[12.5px] text-church-muted hidden sm:flex items-center gap-1.5">
+            {savedAt ? (
+              <>
+                <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                초안 자동 저장됨 ·{" "}
+                <time dateTime={new Date(savedAt).toISOString()}>
+                  {new Date(savedAt).toLocaleTimeString("ko-KR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </time>
+              </>
+            ) : isEditing ? (
+              "변경사항은 저장을 눌러야 반영됩니다"
+            ) : (
+              "새 공지를 작성 중입니다"
+            )}
           </p>
           <div className="flex items-center gap-2 ml-auto">
             <Button
@@ -357,7 +516,7 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
             </Button>
             <Button
               type="submit"
-              className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer min-w-24"
+              className="bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer min-w-24"
               disabled={saving || neitherSelected}
             >
               {saving ? "저장 중..." : isEditing ? "수정 저장" : "작성"}

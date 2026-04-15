@@ -46,7 +46,7 @@ function SortableItem({ announcement }: { announcement: Announcement }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 p-3 bg-white border rounded-md"
+      className="flex items-center gap-3 p-3 bg-church-surface border rounded-md"
     >
       <button
         className="cursor-grab active:cursor-grabbing p-1 text-church-muted hover:text-church-text"
@@ -159,7 +159,7 @@ export function PriorityDndList({ announcements: initial }: PriorityDndListProps
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
+            className="bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer"
           >
             {saving ? "저장 중..." : "우선순위 저장"}
           </Button>

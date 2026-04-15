@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import type { Announcement } from "@/server/db/schema";
+import type { AnnouncementListItem as AnnouncementListItemData } from "./types";
 import { AnnouncementListItem } from "./announcement-list-item";
 
 // Lazy-load calendar (react-day-picker + date-fns locale) — only loaded when user switches tab
@@ -21,9 +21,9 @@ const CalendarView = dynamic(
 type ViewMode = "feed" | "calendar";
 
 interface AnnouncementViewProps {
-  items: Announcement[];
-  archivedItems: Announcement[];
-  calendarItems: Announcement[];
+  items: AnnouncementListItemData[];
+  archivedItems: AnnouncementListItemData[];
+  calendarItems: AnnouncementListItemData[];
 }
 
 export function AnnouncementView({
@@ -33,7 +33,7 @@ export function AnnouncementView({
 }: AnnouncementViewProps) {
   const [view, setView] = useState<ViewMode>("feed");
   const [showArchive, setShowArchive] = useState(false);
-  const firstImageItemId = items.find((item) => item.imageUrl)?.id;
+  const firstImageItemId = items.find((item) => item.imageUrls.length > 0)?.id;
 
   return (
     <div>
@@ -64,7 +64,7 @@ export function AnnouncementView({
               <span
                 className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-semibold ${
                   isActive
-                    ? "bg-church-text text-white"
+                    ? "bg-church-text text-church-surface"
                     : "bg-church-border-soft text-church-muted"
                 }`}
               >
@@ -139,7 +139,7 @@ export function AnnouncementView({
             onClick={() => setView("feed")}
             className={`focus-ring inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-full text-sm font-medium transition-all cursor-pointer ${
               view === "feed"
-                ? "bg-church-text text-white"
+                ? "bg-church-text text-church-surface"
                 : "text-church-muted hover:text-church-text"
             }`}
           >
@@ -155,7 +155,7 @@ export function AnnouncementView({
             onClick={() => setView("calendar")}
             className={`focus-ring inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-full text-sm font-medium transition-all cursor-pointer ${
               view === "calendar"
-                ? "bg-church-text text-white"
+                ? "bg-church-text text-church-surface"
                 : "text-church-muted hover:text-church-text"
             }`}
           >

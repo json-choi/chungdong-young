@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Dark mode — the inline bootstrap script in root layout adds `.dark` class
+ * based on localStorage override or prefers-color-scheme. No library needed. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -11,20 +13,20 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
 
-  /* Modern minimal palette — ink + stone + single signal accent */
-  --color-church-navy: #0B0F19;
-  --color-church-navy-light: #1F2937;
-  --color-church-crimson: #DC2626;
-  --color-church-accent: #2563EB;
-  --color-church-accent-soft: #EFF4FF;
-  --color-church-bg: #FAFAF9;
-  --color-church-surface: #FFFFFF;
-  --color-church-text: #0B0F19;
-  --color-church-muted: #6B7280;
-  --color-church-border: #E5E7EB;
-  --color-church-border-soft: #F3F4F6;
-  --color-church-sunday: #E11D48;
-  --color-church-saturday: #2563EB;
+  /* Church colors reference CSS vars so :root / @media can override them */
+  --color-church-navy: var(--church-navy);
+  --color-church-navy-light: var(--church-navy-light);
+  --color-church-crimson: var(--church-crimson);
+  --color-church-accent: var(--church-accent);
+  --color-church-accent-soft: var(--church-accent-soft);
+  --color-church-bg: var(--church-bg);
+  --color-church-surface: var(--church-surface);
+  --color-church-text: var(--church-text);
+  --color-church-muted: var(--church-muted);
+  --color-church-border: var(--church-border);
+  --color-church-border-soft: var(--church-border-soft);
+  --color-church-sunday: var(--church-sunday);
+  --color-church-saturday: var(--church-saturday);
 
   --shadow-card: 0 0 0 1px rgba(15, 23, 42, 0.04);
   --shadow-card-hover: 0 8px 24px -8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06);
@@ -69,6 +71,22 @@
 }
 
 :root {
+  /* ─── Church palette (light mode) ─── */
+  --church-navy: #0B0F19;
+  --church-navy-light: #1F2937;
+  --church-crimson: #DC2626;
+  --church-accent: #2563EB;
+  --church-accent-soft: #EFF4FF;
+  --church-bg: #FAFAF9;
+  --church-surface: #FFFFFF;
+  --church-text: #0B0F19;
+  --church-muted: #6B7280;
+  --church-border: #E5E7EB;
+  --church-border-soft: #F3F4F6;
+  --church-sunday: #E11D48;
+  --church-saturday: #2563EB;
+
+  /* ─── shadcn tokens (light) ─── */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -101,6 +119,58 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  /* ─── Church palette (dark mode) ─── */
+  --church-navy: #E5E7EB;
+  --church-navy-light: #374151;
+  --church-crimson: #F87171;
+  --church-accent: #60A5FA;
+  --church-accent-soft: #1E3A8A33;
+  --church-bg: #0A0F1A;
+  --church-surface: #131924;
+  --church-text: #F1F5F9;
+  --church-muted: #94A3B8;
+  --church-border: #1E293B;
+  --church-border-soft: #121824;
+  --church-sunday: #FB7185;
+  --church-saturday: #60A5FA;
+
+  /* ─── shadcn tokens (dark) ─── */
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {

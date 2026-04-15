@@ -2,10 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import type { Announcement } from "@/server/db/schema";
+import type { AnnouncementListItem as AnnouncementListItemData } from "./types";
 
 interface AnnouncementListItemProps {
-  announcement: Announcement;
+  announcement: AnnouncementListItemData;
   isArchived?: boolean;
   priority?: boolean;
 }
@@ -28,11 +28,11 @@ export function AnnouncementListItem({
       }`}
     >
       {/* Thumbnail or priority bar */}
-      {announcement.imageUrl ? (
+      {announcement.imageUrls[0] ? (
         <div className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-church-border-soft">
           {priority ? (
             <Image
-              src={announcement.imageUrl}
+              src={announcement.imageUrls[0]}
               alt=""
               fill
               sizes="56px"
@@ -42,7 +42,7 @@ export function AnnouncementListItem({
             />
           ) : (
             <Image
-              src={announcement.imageUrl}
+              src={announcement.imageUrls[0]}
               alt=""
               fill
               sizes="56px"

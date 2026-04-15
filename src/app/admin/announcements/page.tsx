@@ -23,7 +23,7 @@ export default async function AdminAnnouncementsPage() {
         description="공지 목록을 관리하고 우선순위를 조정합니다."
         actions={
           <Link href="/admin/announcements/new">
-            <Button className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer">
+            <Button className="bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>

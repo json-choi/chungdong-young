@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { QrCodeDialog } from "./qr-code-dialog";
 import type { Announcement } from "@/server/db/schema";
 
 interface AnnouncementTableProps {
@@ -61,7 +62,7 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
           첫 공지를 작성해 보세요.
         </p>
         <Link href="/admin/announcements/new" className="mt-4 inline-block">
-          <Button className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer">
+          <Button className="bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer">
             새 공지 작성
           </Button>
         </Link>
@@ -74,13 +75,13 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent border-church-border bg-church-border-soft/40">
-            <TableHead className="w-16 label-mono !text-[11px]">#</TableHead>
-            <TableHead className="label-mono !text-[11px]">제목</TableHead>
-            <TableHead className="w-24 label-mono !text-[11px]">상태</TableHead>
-            <TableHead className="w-40 hidden sm:table-cell label-mono !text-[11px]">
+            <TableHead className="w-16 label-mono text-[11px]!">#</TableHead>
+            <TableHead className="label-mono text-[11px]!">제목</TableHead>
+            <TableHead className="w-24 label-mono text-[11px]!">상태</TableHead>
+            <TableHead className="w-40 hidden sm:table-cell label-mono text-[11px]!">
               기간
             </TableHead>
-            <TableHead className="w-32 text-right label-mono !text-[11px]">
+            <TableHead className="w-32 text-right label-mono text-[11px]!">
               관리
             </TableHead>
           </TableRow>
@@ -105,15 +106,20 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
                     {item.title}
                   </span>
                   <span className="flex gap-1">
-                    {item.imageUrl && (
+                    {item.imageUrls.length > 0 && (
                       <span
-                        className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-church-border-soft text-church-muted"
-                        title="이미지 포함"
-                        aria-label="이미지 포함"
+                        className="inline-flex items-center gap-0.5 px-1.5 h-5 rounded-md bg-church-border-soft text-church-muted"
+                        title={`이미지 ${item.imageUrls.length}장`}
+                        aria-label={`이미지 ${item.imageUrls.length}장`}
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
+                        {item.imageUrls.length > 1 && (
+                          <span className="font-mono text-[10px] tabular-nums">
+                            {item.imageUrls.length}
+                          </span>
+                        )}
                       </span>
                     )}
                     {item.linkUrl && (
@@ -150,6 +156,24 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
+                  <QrCodeDialog
+                    announcementId={item.id}
+                    title={item.title}
+                    isPublished={item.isPublished}
+                    trigger={
+                      <button
+                        type="button"
+                        aria-label={`${item.title} QR 코드`}
+                        title="QR 코드"
+                        className="focus-ring inline-flex items-center justify-center w-8 h-8 rounded-md text-church-muted hover:text-church-text hover:bg-church-border-soft transition-colors cursor-pointer"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75} aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m0 14v1m8-8h-1M5 12H4m11.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h3v3H7V7zM14 7h3v3h-3V7zM7 14h3v3H7v-3zM14 14h.01M17 14h.01M14 17h.01M17 17h.01" />
+                        </svg>
+                      </button>
+                    }
+                  />
                   <Link href={`/admin/announcements/${item.id}/edit`}>
                     <Button
                       variant="ghost"

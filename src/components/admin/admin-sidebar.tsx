@@ -201,7 +201,7 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 bg-white border-b border-church-border flex items-center justify-between px-3">
+      <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 bg-church-surface border-b border-church-border flex items-center justify-between px-3">
         <button
           className="focus-ring inline-flex items-center justify-center w-11 h-11 rounded-lg hover:bg-church-bg cursor-pointer"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -247,7 +247,7 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-church-border transform transition-transform lg:translate-x-0 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-church-surface border-r border-church-border transform transition-transform lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
+import { del } from "@vercel/blob";
 import { db } from "@/server/db/client";
 import { announcements } from "@/server/db/schema";
 import { getAdminSession, unauthorizedResponse } from "@/server/auth/guard";
@@ -36,12 +37,38 @@ export async function PATCH(
       updateData.startAt = new Date(parsed.startAt);
     if (parsed.endAt !== undefined)
       updateData.endAt = parsed.endAt ? new Date(parsed.endAt) : null;
+    if (parsed.isAllDay !== undefined) updateData.isAllDay = parsed.isAllDay;
+    if (parsed.eventStartAt !== undefined)
+      updateData.eventStartAt = parsed.eventStartAt
+        ? new Date(parsed.eventStartAt)
+        : null;
+    if (parsed.eventEndAt !== undefined)
+      updateData.eventEndAt = parsed.eventEndAt
+        ? new Date(parsed.eventEndAt)
+        : null;
+    if (parsed.showOnFeed !== undefined) updateData.showOnFeed = parsed.showOnFeed;
+    if (parsed.showOnCalendar !== undefined)
+      updateData.showOnCalendar = parsed.showOnCalendar;
     if (parsed.isPublished !== undefined)
       updateData.isPublished = parsed.isPublished;
-    if (parsed.imageUrl !== undefined)
-      updateData.imageUrl = parsed.imageUrl || null;
-    if (parsed.imageBlobPath !== undefined)
-      updateData.imageBlobPath = parsed.imageBlobPath || null;
+    if (parsed.imageUrls !== undefined) updateData.imageUrls = parsed.imageUrls;
+    if (parsed.imageBlobPaths !== undefined)
+      updateData.imageBlobPaths = parsed.imageBlobPaths;
+    if (parsed.imageAspect !== undefined)
+      updateData.imageAspect = parsed.imageAspect;
+    if (parsed.imageFit !== undefined) updateData.imageFit = parsed.imageFit;
+    if (parsed.imageFocals !== undefined)
+      updateData.imageFocals = parsed.imageFocals;
+
+    // Snapshot existing blobs so we can garbage-collect removed images
+    const [existing] = await db
+      .select({
+        imageBlobPaths: announcements.imageBlobPaths,
+        imageUrls: announcements.imageUrls,
+      })
+      .from(announcements)
+      .where(and(eq(announcements.id, id), isNull(announcements.deletedAt)))
+      .limit(1);
 
     const [item] = await db
       .update(announcements)
@@ -53,6 +80,25 @@ export async function PATCH(
 
     if (!item) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    // Delete blobs that were dropped from the gallery during this update
+    if (existing) {
+      const keep = new Set<string>([
+        ...item.imageBlobPaths,
+        ...item.imageUrls,
+      ]);
+      const removed = Array.from(
+        new Set([...existing.imageBlobPaths, ...existing.imageUrls])
+      ).filter((ref) => ref.length > 0 && !keep.has(ref));
+
+      if (removed.length > 0) {
+        try {
+          await del(removed);
+        } catch (err) {
+          console.error("Blob cleanup failed on update", id, err);
+        }
+      }
     }
 
     revalidateTag(ANNOUNCEMENTS_TAG, "max");
@@ -87,6 +133,23 @@ export async function DELETE(
 
   if (!item) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  // Clean up image blobs so storage cost doesn't grow with deleted posts.
+  // We pass the blob paths (preferred) and URLs as a fallback to @vercel/blob's
+  // `del`, which accepts both. Empty strings are filtered out.
+  const blobRefs = Array.from(
+    new Set([...item.imageBlobPaths, ...item.imageUrls])
+  ).filter((ref): ref is string => typeof ref === "string" && ref.length > 0);
+
+  if (blobRefs.length > 0) {
+    try {
+      await del(blobRefs);
+    } catch (err) {
+      // Don't fail the delete if Blob API hiccups — log and move on.
+      // The row is already marked deleted; a periodic sweep can reclaim orphans.
+      console.error("Blob cleanup failed for announcement", id, err);
+    }
   }
 
   revalidateTag(ANNOUNCEMENTS_TAG, "max");

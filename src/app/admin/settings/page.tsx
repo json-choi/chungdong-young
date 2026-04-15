@@ -221,7 +221,7 @@ export default function AdminSettingsPage() {
               </div>
               <Button
                 type="submit"
-                className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
+                className="bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer"
                 disabled={savingEmail || !newEmail.trim() || !emailPassword}
               >
                 {savingEmail ? "변경 중..." : "아이디 변경"}
@@ -283,7 +283,7 @@ export default function AdminSettingsPage() {
               </div>
               <Button
                 type="submit"
-                className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
+                className="bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer"
                 disabled={savingPw}
               >
                 {savingPw ? "변경 중..." : "비밀번호 변경"}
@@ -319,7 +319,7 @@ export default function AdminSettingsPage() {
               </div>
             </header>
 
-            <div className="rounded-lg border border-red-200 bg-white p-5 space-y-4">
+            <div className="rounded-lg border border-red-200 dark:border-red-900 bg-church-surface p-5 space-y-4">
               <div>
                 <p className="font-medium text-church-text">모든 공지사항 삭제</p>
                 <p className="text-[13px] text-church-muted leading-relaxed mt-1">

@@ -1,27 +1,53 @@
 import { AnnouncementView } from "@/components/public/announcement-view";
 import { getPublishedAnnouncements } from "@/server/data/announcements";
+import type { Announcement } from "@/server/db/schema";
+import type { AnnouncementListItem } from "@/components/public/types";
 
 export const revalidate = 3600;
+
+function toListItem(a: Announcement): AnnouncementListItem {
+  // Strip bodyHtml + audit fields from RSC payload — list view doesn't render them.
+  // Saves several KB per item on pages with many rich-text posts.
+  return {
+    id: a.id,
+    title: a.title,
+    imageUrls: a.imageUrls,
+    linkUrl: a.linkUrl,
+    priority: a.priority,
+    startAt: a.startAt,
+    endAt: a.endAt,
+    isAllDay: a.isAllDay,
+    eventStartAt: a.eventStartAt,
+    eventEndAt: a.eventEndAt,
+    showOnFeed: a.showOnFeed,
+    showOnCalendar: a.showOnCalendar,
+  };
+}
 
 export default async function PublicPage() {
   const now = new Date();
   const all = await getPublishedAnnouncements();
 
-  const current = all.filter((item) => {
-    if (!item.showOnFeed) return false;
-    const start = new Date(item.startAt);
-    if (start > now) return false;
-    if (item.endAt && new Date(item.endAt) < now) return false;
-    return true;
-  });
+  // Single-pass partition — no repeated array.filter scans on the same data
+  const current: AnnouncementListItem[] = [];
+  const archived: AnnouncementListItem[] = [];
+  const calendar: AnnouncementListItem[] = [];
 
-  const archived = all.filter((item) => {
-    if (!item.showOnFeed) return false;
-    if (!item.endAt) return false;
-    return new Date(item.endAt) < now;
-  });
-
-  const calendarItems = all.filter((item) => item.showOnCalendar);
+  for (const item of all) {
+    if (item.showOnCalendar) {
+      calendar.push(toListItem(item));
+    }
+    if (item.showOnFeed) {
+      const start = new Date(item.startAt);
+      if (start > now) continue;
+      const end = item.endAt ? new Date(item.endAt) : null;
+      if (end && end < now) {
+        archived.push(toListItem(item));
+      } else {
+        current.push(toListItem(item));
+      }
+    }
+  }
 
   if (current.length === 0 && archived.length === 0) {
     return (
@@ -35,7 +61,7 @@ export default async function PublicPage() {
     <AnnouncementView
       items={current}
       archivedItems={archived}
-      calendarItems={calendarItems}
+      calendarItems={calendar}
     />
   );
 }

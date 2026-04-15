@@ -14,20 +14,16 @@ export async function POST() {
   const rows = await db
     .select({
       id: announcements.id,
-      imageUrl: announcements.imageUrl,
-      imageBlobPath: announcements.imageBlobPath,
+      imageUrls: announcements.imageUrls,
+      imageBlobPaths: announcements.imageBlobPaths,
     })
     .from(announcements);
 
   const blobRefs = Array.from(
     new Set(
-      rows.flatMap((row) =>
-        [row.imageBlobPath, row.imageUrl].filter(
-          (value): value is string => Boolean(value)
-        )
-      )
+      rows.flatMap((row) => [...row.imageBlobPaths, ...row.imageUrls])
     )
-  );
+  ).filter((value) => Boolean(value));
 
   await db.delete(announcements).where(isNotNull(announcements.id));
 

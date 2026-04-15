@@ -3,7 +3,9 @@ import { put } from "@vercel/blob";
 import { requireAdmin } from "@/server/auth/guard";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+// Server accepts up to 10MB — browser compresses to WebP before upload so
+// this should rarely be hit. Raw input on the client may be up to 15MB.
+const MAX_SIZE = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   await requireAdmin();
@@ -24,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
-      { error: "File too large (max 5MB)" },
+      { error: "File too large (max 10MB after compression)" },
       { status: 400 }
     );
   }

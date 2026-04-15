@@ -30,8 +30,24 @@ export const announcements = pgTable(
     eventStartAt: timestamp("event_start_at", { withTimezone: true }),
     eventEndAt: timestamp("event_end_at", { withTimezone: true }),
     isPublished: boolean("is_published").notNull().default(false),
-    imageUrl: text("image_url"),
-    imageBlobPath: text("image_blob_path"),
+    /* Ordered image gallery — index 0 is the list thumbnail / OG image */
+    imageUrls: text("image_urls")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    imageBlobPaths: text("image_blob_paths")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    /* Presentation: '16:9' | '4:3' | '1:1' | '3:4' | 'original' */
+    imageAspect: text("image_aspect").notNull().default("16:9"),
+    /* Fit mode: 'cover' = crop to fill, 'contain' = letterbox with padding */
+    imageFit: text("image_fit").notNull().default("cover"),
+    /* Per-image focal point (CSS object-position), index-aligned with imageUrls */
+    imageFocals: text("image_focals")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     createdBy: text("created_by")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),

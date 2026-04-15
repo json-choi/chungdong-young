@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ShareButton } from "@/components/public/share-button";
+import { ImageCarousel } from "@/components/public/image-carousel";
 import { getPublishedAnnouncementById } from "@/server/data/announcements";
 
 export const revalidate = 3600;
@@ -33,7 +33,9 @@ export async function generateMetadata({
       title: item.title,
       description: plainText,
       type: "article",
-      images: item.imageUrl ? [{ url: item.imageUrl }] : undefined,
+      images: item.imageUrls.length > 0
+        ? item.imageUrls.map((url) => ({ url }))
+        : undefined,
     },
   };
 }
@@ -52,31 +54,29 @@ export default async function AnnouncementDetailPage({
 
   return (
     <article>
-      {/* Back row */}
-      <div className="mb-4">
+      {/* Top bar — back link + share */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <Link
           href="/"
-          className="focus-ring inline-flex items-center gap-1 min-h-[44px] text-sm text-church-muted hover:text-church-text rounded-md"
+          className="focus-ring inline-flex items-center gap-1 min-h-11 text-sm text-church-muted hover:text-church-text rounded-md"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           공지사항
         </Link>
+        <ShareButton title={item.title} />
       </div>
 
-      {/* Image */}
-      {item.imageUrl && (
-        <div className="relative w-full aspect-2/1 rounded-2xl overflow-hidden bg-church-border-soft mb-5">
-          <Image
-            src={item.imageUrl}
-            alt={item.title}
-            fill
-            loading="eager"
-            sizes="(max-width: 640px) 100vw, 672px"
-            className="object-cover"
-          />
-        </div>
+      {/* Image gallery */}
+      {item.imageUrls.length > 0 && (
+        <ImageCarousel
+          images={item.imageUrls}
+          alt={item.title}
+          aspect={item.imageAspect as import("@/server/validation/announcement").ImageAspect}
+          fit={item.imageFit as import("@/server/validation/announcement").ImageFit}
+          focals={item.imageFocals}
+        />
       )}
 
       {/* Meta */}
@@ -133,25 +133,22 @@ export default async function AnnouncementDetailPage({
         dangerouslySetInnerHTML={{ __html: item.bodyHtml }}
       />
 
-      {/* Action row */}
-      <div className="mt-8 pt-6 border-t border-church-border flex items-center justify-between gap-3 flex-wrap">
-        {item.linkUrl ? (
+      {/* Action row — only when there's an external link */}
+      {item.linkUrl && (
+        <div className="mt-8 pt-6 border-t border-church-border">
           <a
             href={item.linkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="focus-ring inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-lg bg-church-text text-white text-sm font-medium hover:bg-church-navy-light transition-colors"
+            className="focus-ring inline-flex items-center gap-1.5 min-h-11 px-4 rounded-lg bg-church-text text-church-surface text-sm font-medium hover:bg-church-navy-light transition-colors"
           >
             자세히 보기
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
-        ) : (
-          <span />
-        )}
-        <ShareButton title={item.title} />
-      </div>
+        </div>
+      )}
     </article>
   );
 }

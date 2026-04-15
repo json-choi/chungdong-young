@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -10,35 +10,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+type Phase = "idle" | "submitting" | "redirecting";
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [phase, setPhase] = useState<Phase>("idle");
+
+  // Prefetch the destination so post-login navigation is instant
+  useEffect(() => {
+    router.prefetch("/admin");
+  }, [router]);
+
+  const busy = phase !== "idle";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (busy) return;
     setError("");
-    setLoading(true);
+    setPhase("submitting");
 
     try {
-      const result = await authClient.signIn.email({
-        email,
-        password,
-      });
+      const result = await authClient.signIn.email({ email, password });
 
       if (result.error) {
         setError("이메일 또는 비밀번호가 올바르지 않습니다");
+        setPhase("idle");
         return;
       }
 
-      router.push("/admin");
-      router.refresh();
+      setPhase("redirecting");
+      router.replace("/admin");
     } catch {
       setError("로그인에 실패했습니다");
-    } finally {
-      setLoading(false);
+      setPhase("idle");
     }
   }
 
@@ -71,6 +78,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                disabled={busy}
               />
             </div>
             <div className="space-y-2">
@@ -82,17 +90,33 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                disabled={busy}
               />
             </div>
             {error && (
-              <p className="text-sm text-church-crimson">{error}</p>
+              <p
+                role="alert"
+                aria-live="polite"
+                className="text-sm text-church-crimson"
+              >
+                {error}
+              </p>
             )}
             <Button
               type="submit"
-              className="w-full bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
-              disabled={loading}
+              className="w-full bg-church-text hover:bg-church-navy-light text-church-surface cursor-pointer transition-transform active:scale-[0.98]"
+              disabled={busy}
             >
-              {loading ? "로그인 중..." : "로그인"}
+              <span className="inline-flex items-center justify-center gap-2">
+                {busy ? (
+                  <Spinner />
+                ) : null}
+                {phase === "submitting"
+                  ? "로그인 중..."
+                  : phase === "redirecting"
+                  ? "이동 중..."
+                  : "로그인"}
+              </span>
             </Button>
           </form>
           <div className="mt-5 text-center">
@@ -106,5 +130,31 @@ export default function AdminLoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg
+      className="w-4 h-4 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="3"
+        className="opacity-25"
+      />
+      <path
+        d="M22 12a10 10 0 0 1-10 10"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
