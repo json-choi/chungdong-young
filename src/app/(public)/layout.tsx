@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function PublicLayout({
   children,
@@ -14,12 +15,14 @@ export default function PublicLayout({
             className="focus-ring inline-flex items-center gap-2.5 rounded-md"
             aria-label="정동 젊은이 교회 홈"
           >
-            <span
-              className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-church-text text-white text-xs font-bold"
-              aria-hidden="true"
-            >
-              J
-            </span>
+            <Image
+              src="/logo.png"
+              alt=""
+              width={28}
+              height={28}
+              className="w-7 h-7 object-contain"
+              priority
+            />
             <span className="font-heading text-[15px] text-church-text">
               정동 젊은이 교회
             </span>

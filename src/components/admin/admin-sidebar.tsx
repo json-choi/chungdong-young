@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/server/auth/client";
 import { Separator } from "@/components/ui/separator";
@@ -94,12 +95,14 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
           className="focus-ring inline-flex items-center gap-2.5 rounded-md"
           aria-label="관리자 홈"
         >
-          <span
-            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-church-text text-white text-sm font-bold"
-            aria-hidden="true"
-          >
-            J
-          </span>
+          <Image
+            src="/logo.png"
+            alt=""
+            width={32}
+            height={32}
+            className="w-8 h-8 object-contain"
+            priority
+          />
           <span className="flex flex-col leading-tight">
             <span className="font-heading text-[14px] text-church-text">
               정동 젊은이 교회
@@ -219,8 +222,17 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
             )}
           </svg>
         </button>
-        <span className="font-heading text-[15px] text-church-navy">
-          정동 젊은이 교회
+        <span className="inline-flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={24}
+            height={24}
+            className="w-6 h-6 object-contain"
+          />
+          <span className="font-heading text-[15px] text-church-navy">
+            정동 젊은이 교회
+          </span>
         </span>
         <span className="w-11" aria-hidden="true" />
       </div>

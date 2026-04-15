@@ -3,7 +3,10 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "정동 젊은이 교회",
+  title: {
+    default: "정동 젊은이 교회",
+    template: "%s · 정동 젊은이 교회",
+  },
   description: "정동 젊은이 교회 공지사항",
 };
 

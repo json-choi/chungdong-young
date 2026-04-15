@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/server/auth/client";
 import { Button } from "@/components/ui/button";
@@ -46,12 +47,14 @@ export default function AdminLoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <span
-              className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-church-text text-white text-lg font-bold"
-              aria-hidden="true"
-            >
-              J
-            </span>
+            <Image
+              src="/logo.png"
+              alt="정동 젊은이 교회"
+              width={56}
+              height={56}
+              className="w-14 h-14 object-contain"
+              priority
+            />
           </div>
           <CardTitle className="font-heading text-xl text-church-text">
             관리자 로그인
