@@ -5,7 +5,6 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -54,71 +53,112 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
 
   if (announcements.length === 0) {
     return (
-      <div className="text-center py-12 text-church-muted">
-        등록된 공지사항이 없습니다
+      <div className="card-base text-center py-16 px-4">
+        <p className="font-heading text-base text-church-text">
+          등록된 공지사항이 없습니다
+        </p>
+        <p className="text-sm text-church-muted mt-1">
+          첫 공지를 작성해 보세요.
+        </p>
+        <Link href="/admin/announcements/new" className="mt-4 inline-block">
+          <Button className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer">
+            새 공지 작성
+          </Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border">
+    <div className="card-base overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">순위</TableHead>
-            <TableHead>제목</TableHead>
-            <TableHead className="w-24">상태</TableHead>
-            <TableHead className="w-36 hidden sm:table-cell">기간</TableHead>
-            <TableHead className="w-32 text-right">관리</TableHead>
+          <TableRow className="hover:bg-transparent border-church-border">
+            <TableHead className="w-14 label-mono !text-[11px]">#</TableHead>
+            <TableHead className="label-mono !text-[11px]">제목</TableHead>
+            <TableHead className="w-24 label-mono !text-[11px]">상태</TableHead>
+            <TableHead className="w-40 hidden sm:table-cell label-mono !text-[11px]">
+              기간
+            </TableHead>
+            <TableHead className="w-32 text-right label-mono !text-[11px]">
+              관리
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {announcements.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-mono text-sm text-church-muted">
+            <TableRow
+              key={item.id}
+              className="border-church-border-soft hover:bg-church-border-soft/50 transition-colors"
+            >
+              <TableCell className="font-mono text-[13px] text-church-muted">
                 {item.priority}
               </TableCell>
               <TableCell>
-                <span className="font-medium">{item.title}</span>
-                {item.imageUrl && (
-                  <span className="ml-2 text-xs text-church-muted">
-                    [이미지]
+                <Link
+                  href={`/admin/announcements/${item.id}/edit`}
+                  className="focus-ring inline-flex items-center gap-2 group rounded"
+                >
+                  <span className="font-medium text-church-text group-hover:text-church-accent transition-colors">
+                    {item.title}
                   </span>
-                )}
-                {item.linkUrl && (
-                  <span className="ml-1 text-xs text-church-muted">
-                    [링크]
+                  <span className="flex gap-1">
+                    {item.imageUrl && (
+                      <span
+                        className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-church-border-soft text-church-muted"
+                        title="이미지 포함"
+                        aria-label="이미지 포함"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </span>
+                    )}
+                    {item.linkUrl && (
+                      <span
+                        className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-church-border-soft text-church-muted"
+                        title="외부 링크"
+                        aria-label="외부 링크"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                      </span>
+                    )}
                   </span>
-                )}
+                </Link>
               </TableCell>
               <TableCell>
                 {item.isPublished ? (
-                  <Badge
-                    variant="default"
-                    className="bg-church-navy text-white"
-                  >
+                  <span className="pill bg-emerald-50 text-emerald-700">
+                    <span className="pill-dot" />
                     게시중
-                  </Badge>
+                  </span>
                 ) : (
-                  <Badge variant="secondary">비공개</Badge>
+                  <span className="pill bg-church-border-soft text-church-muted">
+                    <span className="pill-dot" />
+                    초안
+                  </span>
                 )}
               </TableCell>
-              <TableCell className="hidden sm:table-cell text-sm text-church-muted">
+              <TableCell className="hidden sm:table-cell text-[13px] text-church-muted font-mono">
                 {format(new Date(item.startAt), "MM.dd", { locale: ko })}
                 {item.endAt &&
-                  ` - ${format(new Date(item.endAt), "MM.dd", { locale: ko })}`}
+                  ` → ${format(new Date(item.endAt), "MM.dd", { locale: ko })}`}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
                   <Link href={`/admin/announcements/${item.id}/edit`}>
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="cursor-pointer"
+                    >
                       수정
                     </Button>
                   </Link>
                   <AlertDialog>
-                    <AlertDialogTrigger
-                      className="inline-flex items-center justify-center h-8 px-3 text-sm text-church-crimson hover:text-church-crimson hover:bg-accent rounded-md"
-                    >
+                    <AlertDialogTrigger className="focus-ring inline-flex items-center justify-center h-8 px-3 text-sm text-church-crimson hover:bg-red-50 rounded-md transition-colors cursor-pointer">
                       삭제
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -129,9 +169,11 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>취소</AlertDialogCancel>
+                        <AlertDialogCancel className="cursor-pointer">
+                          취소
+                        </AlertDialogCancel>
                         <AlertDialogAction
-                          className="bg-church-crimson hover:bg-church-crimson/90"
+                          className="bg-church-crimson hover:bg-church-crimson/90 cursor-pointer"
                           onClick={() => handleDelete(item.id)}
                         >
                           삭제

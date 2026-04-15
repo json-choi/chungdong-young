@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useMemo } from "react";
 import {
   format,
@@ -23,15 +24,36 @@ interface CalendarViewProps {
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 const MAX_VISIBLE_LANES = 3;
+const MAX_MOBILE_DOTS = 4;
 
 const EVENT_COLORS = [
-  "bg-church-navy text-white",
-  "bg-teal-600 text-white",
-  "bg-church-crimson text-white",
+  "bg-blue-500 text-white",
+  "bg-emerald-500 text-white",
+  "bg-rose-500 text-white",
   "bg-amber-500 text-white",
-  "bg-purple-600 text-white",
-  "bg-emerald-600 text-white",
+  "bg-violet-500 text-white",
+  "bg-teal-500 text-white",
 ];
+
+// Dot colors mirror EVENT_COLORS bg — extract raw class for small dot markers
+const DOT_COLORS = [
+  "bg-blue-500",
+  "bg-emerald-500",
+  "bg-rose-500",
+  "bg-amber-500",
+  "bg-violet-500",
+  "bg-teal-500",
+];
+
+/** Stable color per event id (not index) — prevents color reshuffling
+ *  when the items list changes. */
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
 
 interface EventSegment {
   item: Announcement;
@@ -96,7 +118,6 @@ function computeWeekSegments(
     }
     if (lane < 0) {
       lane = 0;
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         let free = true;
         for (let c = startCol; c <= endCol; c++) {
@@ -166,7 +187,17 @@ export function CalendarView({ items }: CalendarViewProps) {
 
   const colorMap = useMemo(() => {
     const m = new Map<string, string>();
-    items.forEach((item, i) => m.set(item.id, EVENT_COLORS[i % EVENT_COLORS.length]));
+    items.forEach((item) =>
+      m.set(item.id, EVENT_COLORS[hashString(item.id) % EVENT_COLORS.length])
+    );
+    return m;
+  }, [items]);
+
+  const dotColorMap = useMemo(() => {
+    const m = new Map<string, string>();
+    items.forEach((item) =>
+      m.set(item.id, DOT_COLORS[hashString(item.id) % DOT_COLORS.length])
+    );
     return m;
   }, [items]);
 
@@ -203,25 +234,28 @@ export function CalendarView({ items }: CalendarViewProps) {
     <div className="space-y-4">
       <div className="card-base overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-church-border">
+        <div className="flex items-center justify-between px-2 py-2 border-b border-church-border">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="p-1.5 rounded-lg hover:bg-church-bg transition-colors"
+            className="focus-ring inline-flex items-center justify-center w-11 h-11 rounded-lg hover:bg-church-bg transition-colors cursor-pointer"
             aria-label="이전 달"
           >
-            <svg className="w-5 h-5 text-church-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-church-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h2 className="text-base font-semibold text-church-text">
-            {format(currentMonth, "yyyy년 M월", { locale: ko })}
-          </h2>
+          <div className="flex items-baseline gap-2" aria-live="polite">
+            <h2 className="font-heading text-xl text-church-text leading-none">
+              {format(currentMonth, "M월", { locale: ko })}
+            </h2>
+            <span className="label-mono">{format(currentMonth, "yyyy")}</span>
+          </div>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="p-1.5 rounded-lg hover:bg-church-bg transition-colors"
+            className="focus-ring inline-flex items-center justify-center w-11 h-11 rounded-lg hover:bg-church-bg transition-colors cursor-pointer"
             aria-label="다음 달"
           >
-            <svg className="w-5 h-5 text-church-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-church-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -232,8 +266,8 @@ export function CalendarView({ items }: CalendarViewProps) {
           {WEEKDAYS.map((wd, i) => (
             <div
               key={wd}
-              className={`text-center text-[11px] font-medium py-2 ${
-                i === 0 ? "text-church-crimson" : i === 6 ? "text-blue-500" : "text-church-muted"
+              className={`text-center text-[12px] font-semibold py-2 ${
+                i === 0 ? "text-church-sunday" : i === 6 ? "text-church-saturday" : "text-church-muted"
               }`}
             >
               {wd}
@@ -267,18 +301,20 @@ export function CalendarView({ items }: CalendarViewProps) {
                     <button
                       key={format(day, "yyyy-MM-dd")}
                       onClick={() => setSelectedDay(isSel ? null : day)}
-                      className={`pt-1 pb-0.5 px-1 text-center transition-colors ${
-                        isSel ? "bg-church-navy/5" : "hover:bg-church-bg/50"
-                      } ${!isCur ? "opacity-25" : ""}`}
+                      aria-label={format(day, "yyyy년 M월 d일 (EEEE)", { locale: ko })}
+                      aria-pressed={!!isSel}
+                      className={`focus-ring min-h-[44px] pt-1.5 pb-0.5 px-1 text-center transition-colors cursor-pointer ${
+                        isSel ? "bg-church-navy/10" : "hover:bg-church-bg/60"
+                      } ${!isCur ? "opacity-35" : ""}`}
                     >
                       <span
-                        className={`inline-flex items-center justify-center w-6 h-6 text-[11px] rounded-full ${
+                        className={`inline-flex items-center justify-center w-7 h-7 text-[13px] rounded-full transition-colors ${
                           isToday
-                            ? "bg-church-navy text-white font-bold"
+                            ? "bg-church-accent text-white font-semibold"
                             : dow === 0
-                            ? "text-church-crimson"
+                            ? "text-church-sunday font-medium"
                             : dow === 6
-                            ? "text-blue-500"
+                            ? "text-church-saturday font-medium"
                             : "text-church-text"
                         }`}
                       >
@@ -289,9 +325,46 @@ export function CalendarView({ items }: CalendarViewProps) {
                 })}
               </div>
 
-              {/* Event area — fixed height regardless of content */}
+              {/* Mobile: dot indicators (compact, no text) */}
+              <div className="sm:hidden grid grid-cols-7 pb-1.5 px-0.5">
+                {week.map((day, ci) => {
+                  const ds = dayStart(day);
+                  const de = dayEnd(day);
+                  const dayEvents = items.filter((item) => {
+                    const s = dayStart(eventStart(item));
+                    const e = dayEnd(eventEnd(item));
+                    return s <= de && e >= ds;
+                  });
+                  const visible = dayEvents.slice(0, MAX_MOBILE_DOTS);
+                  const extra = dayEvents.length - visible.length;
+
+                  return (
+                    <div
+                      key={ci}
+                      className="flex items-center justify-center gap-[3px] h-3"
+                      aria-hidden="true"
+                    >
+                      {visible.map((ev) => (
+                        <span
+                          key={ev.id}
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            dotColorMap.get(ev.id) ?? "bg-church-muted"
+                          }`}
+                        />
+                      ))}
+                      {extra > 0 && (
+                        <span className="text-[9px] font-medium text-church-muted leading-none">
+                          +{extra}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop: full event bars (≥ sm) */}
               <div
-                className="px-0.5 pb-1 space-y-px"
+                className="hidden sm:block px-0.5 pb-1 space-y-px"
                 style={{ minHeight: reservedEventH + 4 }}
               >
                 {Array.from({ length: visibleLanes }).map((_, laneIdx) => {
@@ -300,9 +373,10 @@ export function CalendarView({ items }: CalendarViewProps) {
                   return (
                     <div key={laneIdx} className="grid grid-cols-7 gap-x-0.5" style={{ height: BAR_H }}>
                       {laneSegs.map((seg) => (
-                        <div
-                          key={seg.item.id}
-                          className={`${seg.colorClass} text-[9px] font-medium truncate px-1.5 flex items-center ${
+                        <Link
+                          key={seg.item.id + "-" + seg.startCol}
+                          href={`/announcements/${seg.item.id}`}
+                          className={`${seg.colorClass} text-[11px] font-medium truncate px-1.5 flex items-center transition-opacity hover:opacity-85 ${
                             seg.continuesFromPrev ? "rounded-l-none" : "rounded-l"
                           } ${seg.continuesToNext ? "rounded-r-none" : "rounded-r"}`}
                           style={{
@@ -312,7 +386,7 @@ export function CalendarView({ items }: CalendarViewProps) {
                           title={seg.item.title}
                         >
                           {seg.item.title}
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   );
@@ -320,7 +394,7 @@ export function CalendarView({ items }: CalendarViewProps) {
 
                 {/* Overflow "+N" per day */}
                 {hasOverflow && (
-                  <div className="grid grid-cols-7 gap-x-0.5" style={{ height: 14 }}>
+                  <div className="grid grid-cols-7 gap-x-0.5" style={{ height: 16 }}>
                     {week.map((day, ci) => {
                       const hidden = segs.filter(
                         (s) =>
@@ -333,8 +407,9 @@ export function CalendarView({ items }: CalendarViewProps) {
                         <button
                           key={ci}
                           onClick={() => setSelectedDay(day)}
-                          className="text-[9px] text-church-muted font-medium text-left px-1 hover:text-church-navy truncate"
+                          className="focus-ring text-[11px] text-church-muted font-medium text-left px-1 hover:text-church-accent truncate cursor-pointer"
                           style={{ gridColumn: `${ci + 1}` }}
+                          aria-label={`이 날에 ${hidden}개 공지 더 보기`}
                         >
                           +{hidden}개
                         </button>
@@ -352,7 +427,7 @@ export function CalendarView({ items }: CalendarViewProps) {
       {selectedDay && (
         <div className="card-base overflow-hidden">
           <div className="px-4 py-3 border-b border-church-border bg-church-bg/50">
-            <h3 className="text-sm font-semibold text-church-text">
+            <h3 className="font-heading text-base text-church-navy">
               {format(selectedDay, "M월 d일 (EEEE)", { locale: ko })}
             </h3>
             <p className="text-xs text-church-muted mt-0.5">
@@ -454,10 +529,12 @@ function DayTimeline({ items, day, colorMap }: DayTimelineProps) {
         })}
 
         {bars.map(({ item, top, height, colorClass, startTime, endTime }) => (
-          <div
+          <Link
             key={item.id}
-            className={`absolute left-12 right-3 rounded-md ${colorClass} px-2.5 py-1 overflow-hidden`}
+            href={`/announcements/${item.id}`}
+            className={`focus-ring absolute left-12 right-3 rounded-md ${colorClass} px-2.5 py-1 overflow-hidden transition-opacity hover:opacity-90`}
             style={{ top, height, minHeight: 24 }}
+            aria-label={`${item.title} 자세히 보기`}
           >
             <p className="text-xs font-semibold truncate leading-tight">{item.title}</p>
             {height >= 36 && (
@@ -465,7 +542,7 @@ function DayTimeline({ items, day, colorMap }: DayTimelineProps) {
                 {startTime} - {endTime}
               </p>
             )}
-          </div>
+          </Link>
         ))}
       </div>
     </div>

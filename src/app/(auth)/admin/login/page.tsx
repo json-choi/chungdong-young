@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/server/auth/client";
 import { Button } from "@/components/ui/button";
@@ -44,12 +45,17 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-church-bg px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl text-church-navy">
+          <div className="flex justify-center mb-4">
+            <span
+              className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-church-text text-white text-lg font-bold"
+              aria-hidden="true"
+            >
+              J
+            </span>
+          </div>
+          <CardTitle className="font-heading text-xl text-church-text">
             관리자 로그인
           </CardTitle>
-          <p className="text-sm text-church-muted mt-1">
-            정동 젊은이 교회
-          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -80,12 +86,20 @@ export default function AdminLoginPage() {
             )}
             <Button
               type="submit"
-              className="w-full bg-church-navy hover:bg-church-navy/90"
+              className="w-full bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
               disabled={loading}
             >
               {loading ? "로그인 중..." : "로그인"}
             </Button>
           </form>
+          <div className="mt-5 text-center">
+            <Link
+              href="/"
+              className="focus-ring text-xs text-church-muted hover:text-church-text rounded"
+            >
+              ← 공지사항
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

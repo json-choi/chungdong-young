@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { db } from "@/server/db/client";
 import { announcements } from "@/server/db/schema";
 import { getAdminSession, unauthorizedResponse } from "@/server/auth/guard";
 import { updateAnnouncementSchema } from "@/server/validation/announcement";
 import { eq, and, isNull } from "drizzle-orm";
 import { sanitizeHtml } from "@/server/services/sanitize";
+import { ANNOUNCEMENTS_TAG } from "@/server/data/announcements";
 
 export async function PATCH(
   request: NextRequest,
@@ -53,6 +55,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
+    revalidateTag(ANNOUNCEMENTS_TAG, "max");
+    revalidateTag(`announcement:${id}`, "max");
     return NextResponse.json({ item });
   } catch {
     return NextResponse.json(
@@ -85,5 +89,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  revalidateTag(ANNOUNCEMENTS_TAG, "max");
+  revalidateTag(`announcement:${id}`, "max");
   return new NextResponse(null, { status: 204 });
 }

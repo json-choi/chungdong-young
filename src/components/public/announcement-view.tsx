@@ -1,9 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import type { Announcement } from "@/server/db/schema";
-import { AnnouncementCard } from "./announcement-card";
-import { CalendarView } from "./calendar-view";
+import { AnnouncementListItem } from "./announcement-list-item";
+
+// Lazy-load calendar (react-day-picker + date-fns locale) — only loaded when user switches tab
+const CalendarView = dynamic(
+  () => import("./calendar-view").then((m) => m.CalendarView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-24 text-center text-sm text-church-muted">
+        불러오는 중…
+      </div>
+    ),
+  }
+);
 
 type ViewMode = "feed" | "calendar";
 
@@ -20,60 +33,73 @@ export function AnnouncementView({
 }: AnnouncementViewProps) {
   const [view, setView] = useState<ViewMode>("feed");
   const [showArchive, setShowArchive] = useState(false);
+  const firstImageItemId = items.find((item) => item.imageUrl)?.id;
 
   return (
     <div>
-      {/* View Toggle */}
-      <div className="flex items-center justify-end mb-5">
-        <div className="inline-flex rounded-lg border border-church-border bg-white p-0.5">
-          <button
-            onClick={() => setView("feed")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              view === "feed"
-                ? "bg-church-navy text-white"
-                : "text-church-muted hover:text-church-text"
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            피드
-          </button>
-          <button
-            onClick={() => setView("calendar")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              view === "calendar"
-                ? "bg-church-navy text-white"
-                : "text-church-muted hover:text-church-text"
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            달력
-          </button>
-        </div>
+      {/* Underlined tabs — desktop/tablet only */}
+      <div
+        role="tablist"
+        aria-label="보기 방식"
+        className="hidden sm:flex items-center gap-6 border-b border-church-border mb-6"
+      >
+        {([
+          { id: "feed", label: "피드", count: items.length },
+          { id: "calendar", label: "달력", count: calendarItems.length },
+        ] as const).map((tab) => {
+          const isActive = view === tab.id;
+          return (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setView(tab.id)}
+              className={`focus-ring relative inline-flex items-center gap-2 py-3 -mb-px border-b-2 text-sm font-medium transition-colors cursor-pointer ${
+                isActive
+                  ? "border-church-text text-church-text"
+                  : "border-transparent text-church-muted hover:text-church-text"
+              }`}
+            >
+              {tab.label}
+              <span
+                className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-semibold ${
+                  isActive
+                    ? "bg-church-text text-white"
+                    : "bg-church-border-soft text-church-muted"
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Content */}
       {view === "feed" ? (
-        <div className="space-y-5">
-          {items.map((item, index) => (
-            <AnnouncementCard key={item.id} announcement={item} isLcp={index === 0} />
+        <div className="space-y-2">
+          {items.map((item, idx) => (
+            <AnnouncementListItem
+              key={item.id}
+              announcement={item}
+              priority={item.id === firstImageItemId || (!firstImageItemId && idx === 0)}
+            />
           ))}
 
           {/* Archive */}
           {archivedItems.length > 0 && (
-            <div className="pt-4">
+            <div className="pt-6 mt-4 border-t border-church-border">
               <button
                 onClick={() => setShowArchive((v) => !v)}
-                className="w-full flex items-center justify-center gap-2 py-3 text-sm text-church-muted hover:text-church-text transition-colors"
+                aria-expanded={showArchive}
+                className="focus-ring w-full flex items-center justify-center gap-2 min-h-[44px] py-3 text-sm font-medium text-church-muted hover:text-church-text transition-colors cursor-pointer rounded-lg"
               >
                 <svg
                   className={`w-4 h-4 transition-transform ${showArchive ? "rotate-180" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -81,11 +107,13 @@ export function AnnouncementView({
               </button>
 
               {showArchive && (
-                <div className="space-y-5 mt-3">
+                <div className="space-y-2 mt-3">
                   {archivedItems.map((item) => (
-                    <div key={item.id} className="opacity-60">
-                      <AnnouncementCard announcement={item} />
-                    </div>
+                    <AnnouncementListItem
+                      key={item.id}
+                      announcement={item}
+                      isArchived
+                    />
                   ))}
                 </div>
               )}
@@ -95,6 +123,49 @@ export function AnnouncementView({
       ) : (
         <CalendarView items={calendarItems} />
       )}
+
+      {/* Mobile bottom glass nav */}
+      <nav
+        role="tablist"
+        aria-label="보기 방식"
+        className="sm:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40"
+        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex items-center gap-1 p-1 rounded-full border border-white/50 bg-white/65 backdrop-blur-xl shadow-[0_8px_32px_rgba(15,23,42,0.12)]">
+          <button
+            role="tab"
+            aria-selected={view === "feed"}
+            aria-label="피드 보기"
+            onClick={() => setView("feed")}
+            className={`focus-ring inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-full text-sm font-medium transition-all cursor-pointer ${
+              view === "feed"
+                ? "bg-church-text text-white"
+                : "text-church-muted hover:text-church-text"
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            피드
+          </button>
+          <button
+            role="tab"
+            aria-selected={view === "calendar"}
+            aria-label="달력 보기"
+            onClick={() => setView("calendar")}
+            className={`focus-ring inline-flex items-center gap-1.5 min-h-[44px] px-5 rounded-full text-sm font-medium transition-all cursor-pointer ${
+              view === "calendar"
+                ? "bg-church-text text-white"
+                : "text-church-muted hover:text-church-text"
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            달력
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

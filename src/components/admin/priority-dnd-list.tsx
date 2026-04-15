@@ -159,7 +159,7 @@ export function PriorityDndList({ announcements: initial }: PriorityDndListProps
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-church-navy hover:bg-church-navy/90"
+            className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
           >
             {saving ? "저장 중..." : "우선순위 저장"}
           </Button>

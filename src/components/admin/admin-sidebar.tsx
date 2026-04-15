@@ -31,10 +31,17 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
   const nav = (
     <div className="flex flex-col h-full">
       <div className="p-5">
-        <h2 className="text-lg font-semibold text-church-navy">
-          정동 젊은이 교회
-        </h2>
-        <p className="text-sm text-church-muted mt-0.5">관리자</p>
+        <div className="inline-flex items-center gap-2.5">
+          <span
+            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-church-text text-white text-sm font-bold"
+            aria-hidden="true"
+          >
+            J
+          </span>
+          <span className="font-heading text-[15px] text-church-text">
+            정동 젊은이 교회
+          </span>
+        </div>
       </div>
       <Separator />
       <nav className="flex-1 p-3 space-y-1">
@@ -49,10 +56,11 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className={`block px-3 py-2 rounded-md text-sm transition-colors ${
+              aria-current={isActive ? "page" : undefined}
+              className={`focus-ring flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-church-navy text-white"
-                  : "text-church-text hover:bg-gray-100"
+                  ? "bg-church-text text-white"
+                  : "text-church-muted hover:bg-church-border-soft hover:text-church-text"
               }`}
             >
               {link.label}
@@ -77,35 +85,33 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md border"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="메뉴 열기"
-      >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 bg-white border-b border-church-border flex items-center justify-between px-3">
+        <button
+          className="focus-ring inline-flex items-center justify-center w-11 h-11 rounded-lg hover:bg-church-bg cursor-pointer"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+          aria-expanded={mobileOpen}
         >
-          {mobileOpen ? (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          ) : (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          )}
-        </svg>
-      </button>
+          <svg
+            className="w-5 h-5 text-church-text"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            {mobileOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+        <span className="font-heading text-[15px] text-church-navy">
+          정동 젊은이 교회
+        </span>
+        <span className="w-11" aria-hidden="true" />
+      </div>
 
       {/* Mobile overlay */}
       {mobileOpen && (

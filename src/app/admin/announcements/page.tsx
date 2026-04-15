@@ -16,21 +16,24 @@ export default async function AdminAnnouncementsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-church-navy">
-          공지사항 관리
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <h1 className="font-heading text-[26px] text-church-text">
+          공지사항 <span className="text-church-muted font-normal">· {items.length}</span>
         </h1>
         <Link href="/admin/announcements/new">
-          <Button className="bg-church-navy hover:bg-church-navy/90">
-            새 공지 작성
+          <Button className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            새 공지
           </Button>
         </Link>
       </div>
 
       <Tabs defaultValue="list">
         <TabsList>
-          <TabsTrigger value="list">목록</TabsTrigger>
-          <TabsTrigger value="priority">우선순위 정렬</TabsTrigger>
+          <TabsTrigger value="list" className="cursor-pointer">목록</TabsTrigger>
+          <TabsTrigger value="priority" className="cursor-pointer">우선순위 정렬</TabsTrigger>
         </TabsList>
         <TabsContent value="list" className="mt-4">
           <AnnouncementTable announcements={items} />

@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { db } from "@/server/db/client";
 import { announcements } from "@/server/db/schema";
 import { getAdminSession, unauthorizedResponse } from "@/server/auth/guard";
 import { eq } from "drizzle-orm";
 import { z } from "zod/v4";
+import { ANNOUNCEMENTS_TAG } from "@/server/data/announcements";
 
 const reorderSchema = z.object({
   items: z.array(
@@ -33,6 +35,7 @@ export async function POST(request: NextRequest) {
         .where(eq(announcements.id, item.id));
     }
 
+    revalidateTag(ANNOUNCEMENTS_TAG, "max");
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

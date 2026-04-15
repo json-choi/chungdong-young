@@ -122,7 +122,7 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg text-church-navy">
+          <CardTitle className="font-heading text-base text-church-text">
             {isEditing ? "수정" : "새 글 작성"}
           </CardTitle>
         </CardHeader>
@@ -317,7 +317,7 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
       <div className="flex gap-3">
         <Button
           type="submit"
-          className="bg-church-navy hover:bg-church-navy/90"
+          className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer"
           disabled={saving || neitherSelected}
         >
           {saving ? "저장 중..." : isEditing ? "수정" : "작성"}

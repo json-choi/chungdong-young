@@ -4,7 +4,12 @@
       "Read(//Users/jaesong/.claude/bin/**)",
       "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack --use-pnpm --yes)",
       "Bash(pnpm add:*)",
-      "Bash(pnpm dlx:*)"
+      "Bash(pnpm dlx:*)",
+      "Bash(curl -s -X POST http://localhost:3000/api/admin/auth/register -H 'Content-Type: application/json' -d '{\"name\":\"관리자\",\"email\":\"admin@chungdong.church\",\"password\":\"admin1234\",\"setupKey\":\"cdy-initial-setup-2026\"}')",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s http://localhost:3000/api/announcements)",
+      "Bash(python3 -c ':*)",
+      "Bash(curl -s http://localhost:3000/api/admin/announcements)"
     ]
   }
 }

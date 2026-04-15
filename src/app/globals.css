@@ -11,17 +11,24 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
 
-  --color-church-navy: #1A2B48;
-  --color-church-navy-light: #2A3F66;
-  --color-church-crimson: #962828;
-  --color-church-bg: #F5F6F8;
-  --color-church-text: #212529;
+  /* Modern minimal palette — ink + stone + single signal accent */
+  --color-church-navy: #0B0F19;
+  --color-church-navy-light: #1F2937;
+  --color-church-crimson: #DC2626;
+  --color-church-accent: #2563EB;
+  --color-church-accent-soft: #EFF4FF;
+  --color-church-bg: #FAFAF9;
+  --color-church-surface: #FFFFFF;
+  --color-church-text: #0B0F19;
   --color-church-muted: #6B7280;
-  --color-church-border: #E2E5EA;
+  --color-church-border: #E5E7EB;
+  --color-church-border-soft: #F3F4F6;
+  --color-church-sunday: #E11D48;
+  --color-church-saturday: #2563EB;
 
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-elevated: 0 8px 24px rgba(0,0,0,0.1);
+  --shadow-card: 0 0 0 1px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 8px 24px -8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 20px 40px -12px rgba(15, 23, 42, 0.18);
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -111,6 +118,22 @@
   }
 }
 
+/* Display heading utility — tight, confident sans */
+.font-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* Mono label (micro UI text) */
+.label-mono {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-church-muted);
+}
+
 /* TipTap editor styles */
 .tiptap {
   outline: none;
@@ -142,17 +165,89 @@
   text-underline-offset: 2px;
 }
 
-/* Card utilities */
+/* Modern surface card — flat with hairline border */
 .card-base {
-  background: white;
-  border-radius: 0.75rem;
+  background: var(--color-church-surface);
+  border-radius: 1rem;
   border: 1px solid var(--color-church-border);
-  box-shadow: var(--shadow-card);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .card-base:hover {
+  border-color: #D1D5DB;
   box-shadow: var(--shadow-card-hover);
+}
+
+/* Archived card variant */
+.card-archived {
+  background: var(--color-church-border-soft);
+  border-color: var(--color-church-border-soft);
+}
+.card-archived h2,
+.card-archived .announcement-content {
+  color: #4B5563;
+}
+
+/* Subtle hairline section rule */
+.section-rule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-rule::before,
+.section-rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-church-border);
+}
+.section-rule-label {
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-church-muted);
+  white-space: nowrap;
+}
+
+/* Pill badge — modern status indicator */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* Accessible focus ring for raw buttons */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-church-navy);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Content renderer styles */
