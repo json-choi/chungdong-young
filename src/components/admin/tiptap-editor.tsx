@@ -20,6 +20,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
         blockquote: false,
         horizontalRule: false,
         code: false,
+        link: false,
       }),
       Link.configure({
         openOnClick: false,

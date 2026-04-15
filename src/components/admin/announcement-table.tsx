@@ -73,8 +73,8 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
     <div className="card-base overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent border-church-border">
-            <TableHead className="w-14 label-mono !text-[11px]">#</TableHead>
+          <TableRow className="hover:bg-transparent border-church-border bg-church-border-soft/40">
+            <TableHead className="w-16 label-mono !text-[11px]">#</TableHead>
             <TableHead className="label-mono !text-[11px]">제목</TableHead>
             <TableHead className="w-24 label-mono !text-[11px]">상태</TableHead>
             <TableHead className="w-40 hidden sm:table-cell label-mono !text-[11px]">
@@ -91,8 +91,10 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
               key={item.id}
               className="border-church-border-soft hover:bg-church-border-soft/50 transition-colors"
             >
-              <TableCell className="font-mono text-[13px] text-church-muted">
-                {item.priority}
+              <TableCell>
+                <span className="inline-flex items-center justify-center min-w-8 h-6 px-2 rounded-md bg-church-border-soft font-mono text-[12px] text-church-muted tabular-nums">
+                  {String(item.priority).padStart(2, "0")}
+                </span>
               </TableCell>
               <TableCell>
                 <Link
@@ -141,7 +143,7 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
                   </span>
                 )}
               </TableCell>
-              <TableCell className="hidden sm:table-cell text-[13px] text-church-muted font-mono">
+              <TableCell className="hidden sm:table-cell text-[13px] text-church-muted font-mono tabular-nums">
                 {format(new Date(item.startAt), "MM.dd", { locale: ko })}
                 {item.endAt &&
                   ` → ${format(new Date(item.endAt), "MM.dd", { locale: ko })}`}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnnouncementTable } from "@/components/admin/announcement-table";
 import { PriorityDndList } from "@/components/admin/priority-dnd-list";
+import { PageHeader } from "@/components/admin/page-header";
 
 export default async function AdminAnnouncementsPage() {
   const items = await db
@@ -16,19 +17,21 @@ export default async function AdminAnnouncementsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 mb-6">
-        <h1 className="font-heading text-[26px] text-church-text">
-          공지사항 <span className="text-church-muted font-normal">· {items.length}</span>
-        </h1>
-        <Link href="/admin/announcements/new">
-          <Button className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            새 공지
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="공지사항"
+        meta={`${items.length}건`}
+        description="공지 목록을 관리하고 우선순위를 조정합니다."
+        actions={
+          <Link href="/admin/announcements/new">
+            <Button className="bg-church-text hover:bg-church-navy-light text-white cursor-pointer">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              새 공지
+            </Button>
+          </Link>
+        }
+      />
 
       <Tabs defaultValue="list">
         <TabsList>
