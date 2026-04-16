@@ -5,8 +5,10 @@ import {
   boolean,
   integer,
   uuid,
+  date,
   index,
   check,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { user } from "./auth";
@@ -48,6 +50,8 @@ export const announcements = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+    /* Denormalized unique-view counter; incremented atomically by the view-tracking endpoint */
+    viewCount: integer("view_count").notNull().default(0),
     createdBy: text("created_by")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
@@ -79,3 +83,30 @@ export const announcements = pgTable(
 
 export type Announcement = typeof announcements.$inferSelect;
 export type NewAnnouncement = typeof announcements.$inferInsert;
+
+/**
+ * Per-day unique view log. Primary key dedups one hashed visitor per post per day.
+ * `visitorHash` = SHA-256(ip + user-agent + BETTER_AUTH_SECRET) — no raw PII stored.
+ */
+export const announcementViews = pgTable(
+  "announcement_views",
+  {
+    announcementId: uuid("announcement_id")
+      .notNull()
+      .references(() => announcements.id, { onDelete: "cascade" }),
+    visitorHash: text("visitor_hash").notNull(),
+    viewedDate: date("viewed_date").notNull(),
+    viewedAt: timestamp("viewed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({
+      name: "announcement_views_pk",
+      columns: [t.announcementId, t.visitorHash, t.viewedDate],
+    }),
+    index("announcement_views_announcement_idx").on(t.announcementId),
+  ]
+);
+
+export type AnnouncementView = typeof announcementViews.$inferSelect;

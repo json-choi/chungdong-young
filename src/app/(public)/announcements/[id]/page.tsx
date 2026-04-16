@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ShareButton } from "@/components/public/share-button";
 import { ImageCarousel } from "@/components/public/image-carousel";
+import { ViewTracker } from "@/components/public/view-tracker";
 import { getPublishedAnnouncementById } from "@/server/data/announcements";
 
 export const revalidate = 3600;
@@ -54,6 +55,7 @@ export default async function AnnouncementDetailPage({
 
   return (
     <article>
+      <ViewTracker announcementId={item.id} />
       {/* Top bar — back link + share */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <Link

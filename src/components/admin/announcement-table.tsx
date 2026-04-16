@@ -75,7 +75,10 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
             <TableHead className="w-16 label-mono text-[11px]!">#</TableHead>
             <TableHead className="label-mono text-[11px]!">제목</TableHead>
             <TableHead className="w-24 label-mono text-[11px]!">상태</TableHead>
-            <TableHead className="w-40 hidden sm:table-cell label-mono text-[11px]!">
+            <TableHead className="w-20 hidden sm:table-cell label-mono text-[11px]! text-right">
+              조회
+            </TableHead>
+            <TableHead className="w-40 hidden md:table-cell label-mono text-[11px]!">
               기간
             </TableHead>
             <TableHead className="w-32 text-right label-mono text-[11px]!">
@@ -146,7 +149,13 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
                   </span>
                 )}
               </TableCell>
-              <TableCell className="hidden sm:table-cell text-[13px] text-church-muted font-mono tabular-nums">
+              <TableCell
+                className="hidden sm:table-cell text-right text-[13px] text-church-muted font-mono tabular-nums"
+                title={`${item.viewCount.toLocaleString("ko-KR")}회 (하루 1인 1회 기준)`}
+              >
+                {item.viewCount.toLocaleString("ko-KR")}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-[13px] text-church-muted font-mono tabular-nums">
                 {format(new Date(item.startAt), "MM.dd", { locale: ko })}
                 {item.endAt &&
                   ` → ${format(new Date(item.endAt), "MM.dd", { locale: ko })}`}
