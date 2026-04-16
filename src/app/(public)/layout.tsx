@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function PublicLayout({
   children,
@@ -9,7 +10,7 @@ export default function PublicLayout({
   return (
     <div className="min-h-screen bg-church-bg flex flex-col">
       <header className="sticky top-0 z-30 bg-church-bg/80 backdrop-blur-md border-b border-church-border">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
           <Link
             href="/"
             className="focus-ring inline-flex items-center gap-2.5 rounded-md"
@@ -27,6 +28,7 @@ export default function PublicLayout({
               정동 젊은이 교회
             </span>
           </Link>
+          <ThemeToggle />
         </div>
       </header>
 

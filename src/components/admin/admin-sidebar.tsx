@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/server/auth/client";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface AdminSidebarProps {
   userName: string;
@@ -174,6 +175,7 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
             </p>
             <p className="text-[11px] text-church-muted">관리자</p>
           </div>
+          <ThemeToggle className="shrink-0" />
         </div>
         <div className="mt-2 grid grid-cols-2 gap-1.5">
           <Link

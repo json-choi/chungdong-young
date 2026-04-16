@@ -204,6 +204,70 @@
   color: var(--color-church-muted);
 }
 
+/* Glassmorphism pill — proper frosted glass for floating navigations.
+   The trick: translucent white overlay + strong backdrop blur + saturate
+   boost + crisp bezel highlight. Paired with .glass-halo (sibling) so even
+   on plain backgrounds the glass has something to refract.
+   Reference: styles.csv Glassmorphism + Spatial UI (VisionOS). */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    /* Lift-off shadow with subtle blue tint for mid-morning window light */
+    0 18px 48px -18px rgba(15, 23, 42, 0.28),
+    0 8px 18px -8px rgba(15, 23, 42, 0.12),
+    /* Top bezel — glass rim catching light */
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.9),
+    /* Inner rim highlight on all sides */
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+    /* Bottom edge — faint shadow, implies thickness */
+    inset 0 -1px 0 0 rgba(15, 23, 42, 0.05);
+}
+
+/* Dark mode: translucent light-tint glass — still see-through, but bezel
+   now comes from a bright top highlight against the dark backdrop. */
+:root.dark .glass-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 18px 48px -14px rgba(0, 0, 0, 0.7),
+    0 6px 16px -6px rgba(0, 0, 0, 0.5),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Ambient halo sits behind .glass-pill — blurred pastel wash gives the
+   glass something to refract even on empty page sections. Soft enough that
+   it feels like light, not a shape. */
+.glass-halo {
+  background:
+    radial-gradient(60% 80% at 30% 50%, rgba(143, 163, 186, 0.35), transparent 70%),
+    radial-gradient(55% 90% at 75% 50%, rgba(217, 112, 112, 0.18), transparent 70%);
+  filter: blur(14px);
+  border-radius: 9999px;
+  opacity: 0.9;
+}
+:root.dark .glass-halo {
+  background:
+    radial-gradient(60% 80% at 30% 50%, rgba(143, 163, 186, 0.22), transparent 70%),
+    radial-gradient(55% 90% at 75% 50%, rgba(217, 112, 112, 0.12), transparent 70%);
+  opacity: 0.7;
+}
+
+/* Browsers without backdrop-filter (e.g. older Firefox) — give the pill
+   a solid tinted fallback so it remains legible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-pill {
+    background: color-mix(in srgb, var(--color-church-surface) 92%, transparent);
+  }
+  :root.dark .glass-pill {
+    background: color-mix(in srgb, var(--color-church-surface) 88%, transparent);
+  }
+}
+
 /* TipTap editor styles */
 .tiptap {
   outline: none;
@@ -297,6 +361,131 @@
   pointer-events: none;
   float: left;
   height: 0;
+}
+
+/* Task list — checkboxes */
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.tiptap ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  user-select: none;
+  margin-top: 0.35rem;
+}
+.tiptap ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+.tiptap ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  color: var(--color-church-muted);
+}
+
+/* Tables */
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1rem 0;
+  border: 1px solid var(--color-church-border);
+}
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid var(--color-church-border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  min-width: 4rem;
+  position: relative;
+  box-sizing: border-box;
+}
+.tiptap table th {
+  background: color-mix(in srgb, var(--color-church-navy) 12%, transparent);
+  font-weight: 600;
+  text-align: left;
+}
+.tiptap table p {
+  margin: 0;
+}
+.tiptap table .selectedCell {
+  background: color-mix(in srgb, var(--color-church-navy) 14%, transparent);
+}
+.tiptap .tableWrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.tiptap .column-resize-handle {
+  background: var(--color-church-navy);
+  bottom: 0;
+  position: absolute;
+  right: -2px;
+  pointer-events: none;
+  top: 0;
+  width: 3px;
+  z-index: 1;
+}
+.tiptap .resize-cursor {
+  cursor: ew-resize;
+}
+
+/* YouTube embed */
+.tiptap .tiptap-youtube,
+.tiptap div[data-youtube-video] {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+  margin: 1rem auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+.tiptap .tiptap-youtube iframe,
+.tiptap div[data-youtube-video] iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Sub / Sup */
+.tiptap sub,
+.tiptap sup {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+/* BubbleMenu / FloatingMenu / DragHandle — editor affordances */
+.tiptap-bubble,
+.tiptap-floating {
+  max-width: calc(100vw - 2rem);
+}
+
+.tiptap-drag-handle {
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.5rem;
+  cursor: grab;
+  border-radius: 4px;
+}
+.tiptap-drag-handle:hover {
+  background: var(--color-church-border-soft);
+  opacity: 1;
+}
+.tiptap:hover ~ .tiptap-drag-handle,
+.tiptap:focus-within ~ .tiptap-drag-handle,
+.tiptap-drag-handle:focus-within {
+  opacity: 0.7;
 }
 
 /* Modern surface card — flat with hairline border */
@@ -457,4 +646,78 @@
   color: var(--color-church-navy);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* Task list (public) */
+.announcement-content ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+.announcement-content ul[data-type="taskList"] li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.announcement-content ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  user-select: none;
+  margin-top: 0.35rem;
+}
+.announcement-content ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+.announcement-content ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  color: var(--color-church-muted);
+}
+
+/* Tables (public) */
+.announcement-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+  border: 1px solid var(--color-church-border);
+}
+.announcement-content th,
+.announcement-content td {
+  border: 1px solid var(--color-church-border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+}
+.announcement-content th {
+  background: color-mix(in srgb, var(--color-church-navy) 12%, transparent);
+  font-weight: 600;
+  text-align: left;
+}
+.announcement-content table p {
+  margin: 0;
+}
+
+/* YouTube (public) */
+.announcement-content div[data-youtube-video],
+.announcement-content .tiptap-youtube {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+  margin: 1rem auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+.announcement-content div[data-youtube-video] iframe,
+.announcement-content .tiptap-youtube iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Sub / Sup (public) */
+.announcement-content sub,
+.announcement-content sup {
+  font-size: 0.75em;
+  line-height: 0;
 }

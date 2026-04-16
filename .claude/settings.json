@@ -9,7 +9,8 @@
       "Read(//private/tmp/**)",
       "Bash(curl -s http://localhost:3000/api/announcements)",
       "Bash(python3 -c ':*)",
-      "Bash(curl -s http://localhost:3000/api/admin/announcements)"
+      "Bash(curl -s http://localhost:3000/api/admin/announcements)",
+      "mcp__context7__query-docs"
     ]
   }
 }

@@ -131,7 +131,15 @@ export function AnnouncementView({
         className="sm:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40"
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="flex items-center gap-1 p-1 rounded-full border border-white/50 bg-white/65 backdrop-blur-xl shadow-[0_8px_32px_rgba(15,23,42,0.12)]">
+        {/* Ambient halo — gives the glass something to refract even when the
+            page content directly behind is plain. Positioned behind the pill
+            and blurred heavily so it reads as diffused light, not a shape. */}
+        <div
+          aria-hidden="true"
+          className="glass-halo pointer-events-none absolute inset-x-[-24px] -top-5 -bottom-5 -z-10"
+        />
+
+        <div className="glass-pill relative flex items-center gap-1 p-1 rounded-full">
           <button
             role="tab"
             aria-selected={view === "feed"}

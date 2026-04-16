@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 // Runs before body paints — sets `.dark` class based on stored preference or
 // system setting to avoid FOUC. Reads/writes localStorage["theme"].
@@ -57,7 +56,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         {children}
         <Toaster />
-        {process.env.NODE_ENV === "development" && <ThemeToggle />}
       </body>
     </html>
   );
