@@ -8,6 +8,7 @@ import { updateAnnouncementSchema } from "@/server/validation/announcement";
 import { eq, and, isNull } from "drizzle-orm";
 import { sanitizeHtml } from "@/server/services/sanitize";
 import { ANNOUNCEMENTS_TAG } from "@/server/data/announcements";
+import { adminApiError, AdminApiError } from "@/server/api/errors";
 
 export async function PATCH(
   request: NextRequest,
@@ -79,7 +80,10 @@ export async function PATCH(
       .returning();
 
     if (!item) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      throw new AdminApiError("해당 공지사항을 찾을 수 없습니다", {
+        status: 404,
+        detail: `ID ${id} 인 공지사항이 이미 삭제되었거나 존재하지 않습니다.`,
+      });
     }
 
     // Delete blobs that were dropped from the gallery during this update
@@ -104,11 +108,8 @@ export async function PATCH(
     revalidateTag(ANNOUNCEMENTS_TAG, "max");
     revalidateTag(`announcement:${id}`, "max");
     return NextResponse.json({ item });
-  } catch {
-    return NextResponse.json(
-      { error: "입력 데이터가 올바르지 않습니다" },
-      { status: 422 }
-    );
+  } catch (err) {
+    return adminApiError(err, "announcements.update");
   }
 }
 
@@ -120,39 +121,43 @@ export async function DELETE(
   if (!session) return unauthorizedResponse();
   const { id } = await params;
 
-  const [item] = await db
-    .update(announcements)
-    .set({
-      deletedAt: new Date(),
-      isPublished: false,
-    })
-    .where(
-      and(eq(announcements.id, id), isNull(announcements.deletedAt))
-    )
-    .returning();
+  try {
+    const [item] = await db
+      .update(announcements)
+      .set({
+        deletedAt: new Date(),
+        isPublished: false,
+      })
+      .where(
+        and(eq(announcements.id, id), isNull(announcements.deletedAt))
+      )
+      .returning();
 
-  if (!item) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  // Clean up image blobs so storage cost doesn't grow with deleted posts.
-  // We pass the blob paths (preferred) and URLs as a fallback to @vercel/blob's
-  // `del`, which accepts both. Empty strings are filtered out.
-  const blobRefs = Array.from(
-    new Set([...item.imageBlobPaths, ...item.imageUrls])
-  ).filter((ref): ref is string => typeof ref === "string" && ref.length > 0);
-
-  if (blobRefs.length > 0) {
-    try {
-      await del(blobRefs);
-    } catch (err) {
-      // Don't fail the delete if Blob API hiccups — log and move on.
-      // The row is already marked deleted; a periodic sweep can reclaim orphans.
-      console.error("Blob cleanup failed for announcement", id, err);
+    if (!item) {
+      throw new AdminApiError("해당 공지사항을 찾을 수 없습니다", {
+        status: 404,
+        detail: `ID ${id} 인 공지사항이 이미 삭제되었거나 존재하지 않습니다.`,
+      });
     }
-  }
 
-  revalidateTag(ANNOUNCEMENTS_TAG, "max");
-  revalidateTag(`announcement:${id}`, "max");
-  return new NextResponse(null, { status: 204 });
+    // Clean up image blobs so storage cost doesn't grow with deleted posts.
+    const blobRefs = Array.from(
+      new Set([...item.imageBlobPaths, ...item.imageUrls])
+    ).filter((ref): ref is string => typeof ref === "string" && ref.length > 0);
+
+    if (blobRefs.length > 0) {
+      try {
+        await del(blobRefs);
+      } catch (err) {
+        // Don't fail the delete if Blob API hiccups — log and move on.
+        console.error("Blob cleanup failed for announcement", id, err);
+      }
+    }
+
+    revalidateTag(ANNOUNCEMENTS_TAG, "max");
+    revalidateTag(`announcement:${id}`, "max");
+    return new NextResponse(null, { status: 204 });
+  } catch (err) {
+    return adminApiError(err, "announcements.delete");
+  }
 }

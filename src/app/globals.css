@@ -207,12 +207,37 @@
 /* TipTap editor styles */
 .tiptap {
   outline: none;
-  min-height: 200px;
+  min-height: 260px;
   padding: 1rem;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-church-text);
+}
+
+.tiptap > * + * {
+  margin-top: 0.75rem;
 }
 
 .tiptap p {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
+}
+
+.tiptap h2 {
+  font-family: var(--font-heading), inherit;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap h3 {
+  font-family: var(--font-heading), inherit;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .tiptap ul,
@@ -229,10 +254,49 @@
   list-style-type: decimal;
 }
 
+.tiptap li > p {
+  margin-bottom: 0.25rem;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid var(--color-church-border);
+  padding: 0.25rem 0 0.25rem 1rem;
+  color: var(--color-church-text);
+  opacity: 0.85;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 1px solid var(--color-church-border);
+  margin: 1.5rem 0;
+}
+
+.tiptap mark {
+  background-color: #fff3a3;
+  padding: 0 2px;
+  border-radius: 2px;
+  color: inherit;
+}
+
+.tiptap u {
+  text-underline-offset: 3px;
+}
+
 .tiptap a {
   color: var(--color-church-navy);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* Tiptap Placeholder extension — shows a hint while the editor is empty */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-church-muted);
+  pointer-events: none;
+  float: left;
+  height: 0;
 }
 
 /* Modern surface card — flat with hairline border */
@@ -325,6 +389,26 @@
   margin-bottom: 0.75rem;
 }
 
+.announcement-content h2 {
+  font-family: var(--font-heading), inherit;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-church-text);
+}
+
+.announcement-content h3 {
+  font-family: var(--font-heading), inherit;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-church-text);
+}
+
 .announcement-content ul,
 .announcement-content ol {
   padding-left: 1.5rem;
@@ -337,6 +421,36 @@
 
 .announcement-content ol {
   list-style-type: decimal;
+}
+
+.announcement-content li > p {
+  margin-bottom: 0.25rem;
+}
+
+.announcement-content blockquote {
+  border-left: 3px solid var(--color-church-border);
+  padding: 0.25rem 0 0.25rem 1rem;
+  color: var(--color-church-text);
+  opacity: 0.85;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.announcement-content hr {
+  border: none;
+  border-top: 1px solid var(--color-church-border);
+  margin: 1.5rem 0;
+}
+
+.announcement-content mark {
+  background-color: #fff3a3;
+  padding: 0 2px;
+  border-radius: 2px;
+  color: inherit;
+}
+
+.announcement-content u {
+  text-underline-offset: 3px;
 }
 
 .announcement-content a {

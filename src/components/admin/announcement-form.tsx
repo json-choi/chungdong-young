@@ -11,6 +11,7 @@ import { ImageUploader, type GalleryImage } from "./image-uploader";
 import { ImageDisplaySettings } from "./image-display-settings";
 import { QrCodeDialog } from "./qr-code-dialog";
 import { toast } from "sonner";
+import { adminFetch, toastAdminError } from "@/lib/admin-fetch";
 import type { Announcement } from "@/server/db/schema";
 import type {
   ImageAspect,
@@ -198,20 +199,18 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
         : "/api/admin/announcements";
       const method = isEditing ? "PATCH" : "POST";
 
-      const res = await fetch(url, {
+      await adminFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to save");
-
       clearDraft();
       toast.success(isEditing ? "수정되었습니다" : "작성되었습니다");
       router.push("/admin/announcements");
       router.refresh();
-    } catch {
-      toast.error("저장에 실패했습니다");
+    } catch (err) {
+      toastAdminError(err, "저장하지 못했어요");
     } finally {
       setSaving(false);
     }

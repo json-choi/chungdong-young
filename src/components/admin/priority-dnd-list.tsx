@@ -20,6 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { adminFetch, toastAdminError } from "@/lib/admin-fetch";
 import type { Announcement } from "@/server/db/schema";
 
 interface PriorityDndListProps {
@@ -105,7 +106,7 @@ export function PriorityDndList({ announcements: initial }: PriorityDndListProps
     setSaving(true);
 
     try {
-      const res = await fetch("/api/admin/announcements/reorder", {
+      await adminFetch("/api/admin/announcements/reorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -116,12 +117,10 @@ export function PriorityDndList({ announcements: initial }: PriorityDndListProps
         }),
       });
 
-      if (!res.ok) throw new Error("Failed");
-
       toast.success("우선순위가 저장되었습니다");
       setHasChanges(false);
-    } catch {
-      toast.error("저장에 실패했습니다");
+    } catch (err) {
+      toastAdminError(err, "우선순위를 저장하지 못했어요");
     } finally {
       setSaving(false);
     }

@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { adminFetch, toastAdminError } from "@/lib/admin-fetch";
 import { PageHeader } from "@/components/admin/page-header";
 
 const sections = [
@@ -57,25 +58,18 @@ export default function AdminSettingsPage() {
     setSavingPw(true);
 
     try {
-      const res = await fetch("/api/admin/auth/password", {
+      await adminFetch("/api/admin/auth/password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed");
-      }
 
       toast.success("비밀번호가 변경되었습니다");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "비밀번호 변경에 실패했습니다"
-      );
+      toastAdminError(err, "비밀번호를 변경하지 못했어요");
     } finally {
       setSavingPw(false);
     }
@@ -86,7 +80,7 @@ export default function AdminSettingsPage() {
     setSavingEmail(true);
 
     try {
-      const res = await fetch("/api/admin/auth/email", {
+      await adminFetch("/api/admin/auth/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -95,11 +89,6 @@ export default function AdminSettingsPage() {
         }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed");
-      }
-
       toast.success(
         "이메일(아이디)이 변경되었습니다. 다음 로그인부터 새 이메일을 사용하세요"
       );
@@ -107,9 +96,7 @@ export default function AdminSettingsPage() {
       setEmailPassword("");
       router.refresh();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "이메일 변경에 실패했습니다"
-      );
+      toastAdminError(err, "이메일을 변경하지 못했어요");
     } finally {
       setSavingEmail(false);
     }
@@ -124,16 +111,15 @@ export default function AdminSettingsPage() {
     setResetting(true);
 
     try {
-      const res = await fetch("/api/admin/announcements/reset", {
+      const res = await adminFetch("/api/admin/announcements/reset", {
         method: "POST",
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed");
-      }
-
-      const data = await res.json();
+      const data = (await res.json()) as {
+        deleted: number;
+        blobsDeleted: number;
+        blobCleanupError: string | null;
+      };
       toast.success(
         data.blobCleanupError
           ? `${data.deleted}건의 공지사항은 삭제되었지만 이미지 정리에 일부 실패했습니다`
@@ -143,7 +129,7 @@ export default function AdminSettingsPage() {
       setResetDialogOpen(false);
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "삭제에 실패했습니다");
+      toastAdminError(err, "데이터를 초기화하지 못했어요");
     } finally {
       setResetting(false);
     }

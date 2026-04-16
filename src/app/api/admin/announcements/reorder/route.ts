@@ -6,6 +6,7 @@ import { getAdminSession, unauthorizedResponse } from "@/server/auth/guard";
 import { eq } from "drizzle-orm";
 import { z } from "zod/v4";
 import { ANNOUNCEMENTS_TAG } from "@/server/data/announcements";
+import { adminApiError } from "@/server/api/errors";
 
 const reorderSchema = z.object({
   items: z.array(
@@ -37,10 +38,7 @@ export async function POST(request: NextRequest) {
 
     revalidateTag(ANNOUNCEMENTS_TAG, "max");
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json(
-      { error: "입력 데이터가 올바르지 않습니다" },
-      { status: 422 }
-    );
+  } catch (err) {
+    return adminApiError(err, "announcements.reorder");
   }
 }

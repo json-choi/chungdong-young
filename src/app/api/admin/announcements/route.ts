@@ -7,18 +7,23 @@ import { createAnnouncementSchema } from "@/server/validation/announcement";
 import { desc, isNull } from "drizzle-orm";
 import { sanitizeHtml } from "@/server/services/sanitize";
 import { ANNOUNCEMENTS_TAG } from "@/server/data/announcements";
+import { adminApiError } from "@/server/api/errors";
 
 export async function GET() {
   const session = await getAdminSession();
   if (!session) return unauthorizedResponse();
 
-  const items = await db
-    .select()
-    .from(announcements)
-    .where(isNull(announcements.deletedAt))
-    .orderBy(desc(announcements.priority), desc(announcements.createdAt));
+  try {
+    const items = await db
+      .select()
+      .from(announcements)
+      .where(isNull(announcements.deletedAt))
+      .orderBy(desc(announcements.priority), desc(announcements.createdAt));
 
-  return NextResponse.json({ items });
+    return NextResponse.json({ items });
+  } catch (err) {
+    return adminApiError(err, "announcements.list");
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -58,10 +63,7 @@ export async function POST(request: NextRequest) {
 
     revalidateTag(ANNOUNCEMENTS_TAG, "max");
     return NextResponse.json({ item }, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: "입력 데이터가 올바르지 않습니다" },
-      { status: 422 }
-    );
+  } catch (err) {
+    return adminApiError(err, "announcements.create");
   }
 }

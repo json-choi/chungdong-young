@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { adminFetch, toastAdminError } from "@/lib/admin-fetch";
 import { QrCodeDialog } from "./qr-code-dialog";
 import type { Announcement } from "@/server/db/schema";
 
@@ -37,18 +38,14 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
 
   async function handleDelete(id: string) {
     try {
-      const res = await fetch(`/api/admin/announcements/${id}`, {
+      await adminFetch(`/api/admin/announcements/${id}`, {
         method: "DELETE",
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to delete");
-      }
-
       toast.success("공지가 삭제되었습니다");
       router.refresh();
-    } catch {
-      toast.error("삭제에 실패했습니다");
+    } catch (err) {
+      toastAdminError(err, "삭제하지 못했어요");
     }
   }
 

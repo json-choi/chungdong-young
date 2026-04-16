@@ -20,6 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { compressImage } from "@/lib/image-compress";
+import { adminFetch, AdminFetchError } from "@/lib/admin-fetch";
 import { toast } from "sonner";
 
 export interface GalleryImage {
@@ -95,15 +96,10 @@ export function ImageUploader({
         const formData = new FormData();
         formData.append("file", compressed);
 
-        const res = await fetch("/api/admin/blob/upload", {
+        const res = await adminFetch("/api/admin/blob/upload", {
           method: "POST",
           body: formData,
         });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "업로드 실패");
-        }
 
         const data = (await res.json()) as { url: string; pathname: string };
         return {
@@ -114,11 +110,22 @@ export function ImageUploader({
           },
         };
       } catch (err) {
+        const parts: string[] = [];
+        if (err instanceof AdminFetchError) {
+          parts.push(err.message);
+          if (err.detail) parts.push(err.detail);
+          if (err.hint) parts.push(err.hint);
+          if (err.errorId) parts.push(`오류 번호: ${err.errorId}`);
+        } else if (err instanceof Error) {
+          parts.push(err.message);
+        } else {
+          parts.push("업로드 실패");
+        }
         return {
           ...item,
           state: {
             phase: "error",
-            message: err instanceof Error ? err.message : "업로드 실패",
+            message: parts.join(" · "),
           },
         };
       }
