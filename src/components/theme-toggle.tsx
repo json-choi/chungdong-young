@@ -20,7 +20,6 @@ export function ThemeToggle() {
     setChoice(stored);
   }, []);
 
-  // Apply choice: update class + persist
   useEffect(() => {
     if (!mounted) return;
 
@@ -37,7 +36,6 @@ export function ThemeToggle() {
     root.classList.toggle("dark", choice === "dark");
   }, [choice, mounted]);
 
-  // When on "system", follow OS changes live
   useEffect(() => {
     if (!mounted || choice !== "system") return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");

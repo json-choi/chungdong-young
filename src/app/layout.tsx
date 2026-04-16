@@ -12,6 +12,7 @@ const themeBootstrap = `
     var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     var shouldDark = stored === "dark" || ((!stored || stored === "system") && prefersDark);
     if (shouldDark) document.documentElement.classList.add("dark");
+    localStorage.removeItem("palette");
   } catch (e) {}
 })();
 `;
@@ -29,7 +30,7 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FAFAF9" },
-    { media: "(prefers-color-scheme: dark)", color: "#0A0F1A" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F1419" },
   ],
 };
 
