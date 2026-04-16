@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatKst } from "@/lib/datetime";
 import { db } from "@/server/db/client";
 import { announcements } from "@/server/db/schema";
 import { count, eq, isNull, and, desc, gte, lte } from "drizzle-orm";
@@ -199,7 +199,7 @@ async function RecentAndUpcomingSection() {
                       {item.title}
                     </p>
                     <p className="label-mono mt-0.5 tabular-nums">
-                      {format(new Date(item.updatedAt), "M.d HH:mm", { locale: ko })}
+                      {formatKst(item.updatedAt, "M.d HH:mm", { locale: ko })}
                     </p>
                   </div>
                   {item.isPublished ? (
@@ -242,10 +242,10 @@ async function RecentAndUpcomingSection() {
                 >
                   <div className="shrink-0 w-12 text-center">
                     <div className="label-mono leading-none">
-                      {item.eventStartAt && format(new Date(item.eventStartAt), "MMM", { locale: ko })}
+                      {item.eventStartAt && formatKst(item.eventStartAt, "MMM", { locale: ko })}
                     </div>
                     <div className="font-heading text-xl text-church-text leading-none mt-0.5 tabular-nums">
-                      {item.eventStartAt && format(new Date(item.eventStartAt), "d")}
+                      {item.eventStartAt && formatKst(item.eventStartAt, "d")}
                     </div>
                   </div>
                   <div className="min-w-0 flex-1">
@@ -254,8 +254,8 @@ async function RecentAndUpcomingSection() {
                     </p>
                     <p className="text-[12px] text-church-accent mt-0.5 font-medium">
                       {item.eventStartAt &&
-                        format(
-                          new Date(item.eventStartAt),
+                        formatKst(
+                          item.eventStartAt,
                           item.isAllDay ? "EEEE" : "EEEE · HH:mm",
                           { locale: ko }
                         )}

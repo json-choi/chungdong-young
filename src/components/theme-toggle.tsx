@@ -1,10 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ThemeChoice = "light" | "dark" | "system";
+const THEME_KEY = "theme";
+
+// Subscribe to cross-tab updates via the `storage` event. Same-tab updates
+// are fanned out manually from `cycle()` because `storage` does not fire in
+// the tab that made the change.
+function subscribe(callback: () => void): () => void {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function getClientSnapshot(): ThemeChoice {
+  return (localStorage.getItem(THEME_KEY) as ThemeChoice | null) ?? "system";
+}
+
+function getServerSnapshot(): ThemeChoice {
+  return "system";
+}
+
+// Derived from useSyncExternalStore: server snapshot is `false`, client
+// snapshot is `true`. Effectively `mounted` without writing state in an effect.
+const NEVER_CHANGES = () => () => {};
+function useHasMounted(): boolean {
+  return useSyncExternalStore(
+    NEVER_CHANGES,
+    () => true,
+    () => false
+  );
+}
 
 /**
  * Theme toggle button suitable for embedding in a header or sidebar.
@@ -15,15 +43,12 @@ type ThemeChoice = "light" | "dark" | "system";
  * preserves the choice without FOUC.
  */
 export function ThemeToggle({ className }: { className?: string }) {
-  const [mounted, setMounted] = useState(false);
-  const [choice, setChoice] = useState<ThemeChoice>("system");
-
-  useEffect(() => {
-    setMounted(true);
-    const stored =
-      (localStorage.getItem("theme") as ThemeChoice | null) ?? "system";
-    setChoice(stored);
-  }, []);
+  const choice = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
+  const mounted = useHasMounted();
 
   useEffect(() => {
     if (!mounted) return;
@@ -31,7 +56,6 @@ export function ThemeToggle({ className }: { className?: string }) {
     const root = document.documentElement;
 
     if (choice === "system") {
-      localStorage.setItem("theme", "system");
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
@@ -39,7 +63,6 @@ export function ThemeToggle({ className }: { className?: string }) {
       return;
     }
 
-    localStorage.setItem("theme", choice);
     root.classList.toggle("dark", choice === "dark");
   }, [choice, mounted]);
 
@@ -53,6 +76,15 @@ export function ThemeToggle({ className }: { className?: string }) {
     return () => media.removeEventListener("change", handler);
   }, [choice, mounted]);
 
+  const cycle = useCallback(() => {
+    const next: ThemeChoice =
+      choice === "light" ? "dark" : choice === "dark" ? "system" : "light";
+    localStorage.setItem(THEME_KEY, next);
+    // `storage` does not fire in the originating tab — dispatch manually so
+    // `useSyncExternalStore` observes the new snapshot immediately.
+    window.dispatchEvent(new StorageEvent("storage", { key: THEME_KEY }));
+  }, [choice]);
+
   // Render an invisible placeholder during hydration to keep the header
   // layout stable — prevents a layout shift when the button appears.
   if (!mounted) {
@@ -61,12 +93,6 @@ export function ThemeToggle({ className }: { className?: string }) {
         aria-hidden="true"
         className={cn("inline-block h-9 w-9", className)}
       />
-    );
-  }
-
-  function cycle() {
-    setChoice((prev) =>
-      prev === "light" ? "dark" : prev === "dark" ? "system" : "light"
     );
   }
 

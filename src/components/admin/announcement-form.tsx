@@ -18,6 +18,10 @@ import type {
   ImageFit,
 } from "@/server/validation/announcement";
 import { useDraft } from "@/lib/use-draft";
+import {
+  formatForDateTimeInput,
+  localInputToIso,
+} from "@/lib/datetime";
 
 interface Draft {
   title: string;
@@ -41,11 +45,6 @@ interface AnnouncementFormProps {
   announcement?: Announcement;
 }
 
-function formatDateForInput(date: Date | string | null): string {
-  if (!date) return "";
-  const d = new Date(date);
-  return d.toISOString().slice(0, 16);
-}
 
 export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
   const router = useRouter();
@@ -62,18 +61,18 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
   );
 
   const [startAt, setStartAt] = useState(
-    formatDateForInput(announcement?.startAt ?? new Date())
+    formatForDateTimeInput(announcement?.startAt ?? new Date())
   );
   const [endAt, setEndAt] = useState(
-    formatDateForInput(announcement?.endAt ?? null)
+    formatForDateTimeInput(announcement?.endAt ?? null)
   );
 
   const [isAllDay, setIsAllDay] = useState(announcement?.isAllDay ?? false);
   const [eventStartAt, setEventStartAt] = useState(
-    formatDateForInput(announcement?.eventStartAt ?? null)
+    formatForDateTimeInput(announcement?.eventStartAt ?? null)
   );
   const [eventEndAt, setEventEndAt] = useState(
-    formatDateForInput(announcement?.eventEndAt ?? null)
+    formatForDateTimeInput(announcement?.eventEndAt ?? null)
   );
 
   const [isPublished, setIsPublished] = useState(
@@ -181,11 +180,11 @@ export function AnnouncementForm({ announcement }: AnnouncementFormProps) {
         priority,
         showOnFeed,
         showOnCalendar,
-        startAt: effectiveStartAt,
-        endAt: showOnFeed ? endAt : "",
+        startAt: localInputToIso(effectiveStartAt),
+        endAt: showOnFeed ? localInputToIso(endAt) : "",
         isAllDay: showOnCalendar ? isAllDay : false,
-        eventStartAt: showOnCalendar ? eventStartAt : "",
-        eventEndAt: showOnCalendar ? eventEndAt : "",
+        eventStartAt: showOnCalendar ? localInputToIso(eventStartAt) : "",
+        eventEndAt: showOnCalendar ? localInputToIso(eventEndAt) : "",
         isPublished,
         imageUrls: images.map((img) => img.url),
         imageBlobPaths: images.map((img) => img.path),

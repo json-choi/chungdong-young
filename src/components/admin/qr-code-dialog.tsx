@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   Dialog,
@@ -29,13 +29,15 @@ export function QrCodeDialog({
   isPublished = true,
 }: QrCodeDialogProps) {
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    setUrl(`${window.location.origin}/announcements/${announcementId}`);
-  }, [open, announcementId]);
+  // Derive the share URL from open state — no need to mirror `window.location`
+  // into React state, which would need a setState-in-effect bootstrap. The
+  // dialog only ever opens in the browser, so `window` is safe here.
+  const url = useMemo(
+    () => (open ? `${window.location.origin}/announcements/${announcementId}` : ""),
+    [open, announcementId]
+  );
 
   function handleDownloadPng() {
     const canvas = containerRef.current?.querySelector("canvas");

@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatKst } from "@/lib/datetime";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -156,9 +156,9 @@ export function AnnouncementTable({ announcements }: AnnouncementTableProps) {
                 {item.viewCount.toLocaleString("ko-KR")}
               </TableCell>
               <TableCell className="hidden md:table-cell text-[13px] text-church-muted font-mono tabular-nums">
-                {format(new Date(item.startAt), "MM.dd", { locale: ko })}
+                {formatKst(item.startAt, "MM.dd", { locale: ko })}
                 {item.endAt &&
-                  ` → ${format(new Date(item.endAt), "MM.dd", { locale: ko })}`}
+                  ` → ${formatKst(item.endAt, "MM.dd", { locale: ko })}`}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">

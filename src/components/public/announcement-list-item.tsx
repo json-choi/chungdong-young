@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatKst } from "@/lib/datetime";
 import type { AnnouncementListItem as AnnouncementListItemData } from "./types";
 
 interface AnnouncementListItemProps {
@@ -77,8 +77,8 @@ export function AnnouncementListItem({
           )}
           {hasEventDate && (
             <time className="text-church-accent font-medium">
-              {format(
-                new Date(announcement.eventStartAt!),
+              {formatKst(
+                announcement.eventStartAt!,
                 announcement.isAllDay ? "M.d (EEE)" : "M.d HH:mm",
                 { locale: ko }
               )}

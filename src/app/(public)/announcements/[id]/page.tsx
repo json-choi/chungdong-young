@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatKst } from "@/lib/datetime";
 import { ShareButton } from "@/components/public/share-button";
 import { ImageCarousel } from "@/components/public/image-carousel";
 import { ViewTracker } from "@/components/public/view-tracker";
@@ -96,8 +96,8 @@ export default async function AnnouncementDetailPage({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <time>
-                {format(
-                  new Date(item.eventStartAt!),
+                {formatKst(
+                  item.eventStartAt!,
                   item.isAllDay ? "M월 d일 (EEE)" : "M월 d일 HH:mm",
                   { locale: ko }
                 )}
@@ -106,8 +106,8 @@ export default async function AnnouncementDetailPage({
                 <>
                   <span className="text-church-muted/60" aria-hidden="true">→</span>
                   <time>
-                    {format(
-                      new Date(item.eventEndAt),
+                    {formatKst(
+                      item.eventEndAt,
                       item.isAllDay ? "M월 d일 (EEE)" : "M월 d일 HH:mm",
                       { locale: ko }
                     )}
@@ -126,7 +126,7 @@ export default async function AnnouncementDetailPage({
 
       {/* Posted date */}
       <p className="mt-2 text-xs text-church-muted">
-        {format(new Date(item.startAt), "yyyy년 M월 d일 (EEE)", { locale: ko })}
+        {formatKst(item.startAt, "yyyy년 M월 d일 (EEE)", { locale: ko })}
       </p>
 
       {/* Body */}

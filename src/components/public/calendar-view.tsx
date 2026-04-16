@@ -16,6 +16,7 @@ import {
   differenceInCalendarDays,
 } from "date-fns";
 import { ko } from "date-fns/locale";
+import { toKstDate } from "@/lib/datetime";
 import type { AnnouncementListItem as Announcement } from "./types";
 
 interface CalendarViewProps {
@@ -65,20 +66,30 @@ interface EventSegment {
   continuesToNext: boolean;
 }
 
+// Input is a KST-zoned Date (see `toKstDate`). We mutate a copy with local
+// setters — on a zoned Date those setters operate on the KST wall-clock, so
+// the result stays in the same "zoned" coordinate system and compares
+// correctly against other zoned Dates.
 function dayStart(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const x = new Date(d.getTime());
+  x.setHours(0, 0, 0, 0);
+  return x;
 }
 
 function dayEnd(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+  const x = new Date(d.getTime());
+  x.setHours(23, 59, 59, 999);
+  return x;
 }
 
-/** Get the effective event start/end for calendar display */
+/** Get the effective event start/end for calendar display, projected to KST.
+ *  All calendar math (day boundaries, grid positions, formatting) runs in KST
+ *  via zoned Dates — so users abroad still see Korean-church calendar days. */
 function eventStart(item: Announcement): Date {
-  return new Date(item.eventStartAt ?? item.startAt);
+  return toKstDate(item.eventStartAt ?? item.startAt);
 }
 function eventEnd(item: Announcement): Date {
-  return item.eventEndAt ? new Date(item.eventEndAt) : new Date(item.eventStartAt ?? item.startAt);
+  return toKstDate(item.eventEndAt ?? item.eventStartAt ?? item.startAt);
 }
 
 function computeWeekSegments(
@@ -182,7 +193,7 @@ function computeWeekSegments(
 }
 
 export function CalendarView({ items }: CalendarViewProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => toKstDate(new Date()));
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 
   const colorMap = useMemo(() => {
@@ -293,7 +304,7 @@ export function CalendarView({ items }: CalendarViewProps) {
               <div className="grid grid-cols-7">
                 {week.map((day) => {
                   const isCur = isSameMonth(day, currentMonth);
-                  const isToday = isSameDay(day, new Date());
+                  const isToday = isSameDay(day, toKstDate(new Date()));
                   const isSel = selectedDay && isSameDay(day, selectedDay);
                   const dow = day.getDay();
 
