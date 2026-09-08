@@ -81,20 +81,22 @@ export async function POST(request: NextRequest) {
 
     const now = new Date();
 
-    await db.transaction(async (tx) => {
-      await tx
-        .update(user)
-        .set({ email: parsed.newEmail, updatedAt: now })
-        .where(eq(user.id, session.user.id));
+    const updateUser = db
+      .update(user)
+      .set({ email: parsed.newEmail, updatedAt: now })
+      .where(eq(user.id, session.user.id));
 
-      // Legacy installs may use the email itself as the credential accountId.
-      if (credentialAccount.accountId.toLowerCase() === currentEmail) {
-        await tx
-          .update(account)
+    // D1 batch commits both updates atomically, including a uniqueness failure.
+    if (credentialAccount.accountId.toLowerCase() === currentEmail) {
+      await db.batch([
+        updateUser,
+        db.update(account)
           .set({ accountId: parsed.newEmail, updatedAt: now })
-          .where(eq(account.id, credentialAccount.id));
-      }
-    });
+          .where(eq(account.id, credentialAccount.id)),
+      ]);
+    } else {
+      await updateUser;
+    }
 
     return NextResponse.json({
       success: true,

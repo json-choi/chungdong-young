@@ -1,4 +1,4 @@
-import { db } from "../src/server/db/client";
+import { db } from "./d1-client";
 import { user } from "../src/server/db/schema";
 
 async function main() {

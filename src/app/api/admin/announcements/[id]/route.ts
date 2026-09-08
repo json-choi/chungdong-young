@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { del } from "@vercel/blob";
+import { deleteImages as del } from "@/server/services/image-storage";
 import { db } from "@/server/db/client";
 import { announcements } from "@/server/db/schema";
 import { getAdminSession, unauthorizedResponse } from "@/server/auth/guard";

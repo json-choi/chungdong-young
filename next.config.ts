@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.public.blob.vercel-storage.com",
       },
+      ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL.replace(/\/$/, "") + "/**")] : []),
     ],
     // Cache transformed images for 1 year — minimizes Vercel image optimization billing
     minimumCacheTTL: 31_536_000,

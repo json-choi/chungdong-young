@@ -1,0 +1,51 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chungdong-young",
+  "compatibility_date": "2026-09-08",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "main": "worker.js",
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "cache": {
+    "enabled": true
+  },
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "VINEXT_KV_CACHE",
+      "id": "d167e514b11b4827a297e2d7bf04325b"
+    }
+  ],
+  "account_id": "0af3820c996f277b2f17ee446d03f60a",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "chungdong-young-production-20260908",
+      "database_id": "0cae413f-6e45-4877-80d4-0cd06db4450e",
+      "migrations_dir": "d1-migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "chungdong-young-images"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "chungdong.notish.cloud/*",
+      "zone_id": "1c052ef100bdb0276306853c844f4f0c"
+    }
+  ]
+}
