@@ -6,12 +6,11 @@
  *   DATABASE_URL="..." pnpm tsx scripts/migrate-multi-image.ts
  */
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { db } from "../src/server/db/client";
 import { sql } from "drizzle-orm";
 
 async function main() {
-  const file = resolve(__dirname, "../drizzle/0001_multi_image_gallery.sql");
+  const file = new URL("../drizzle/0001_multi_image_gallery.sql", import.meta.url);
   const raw = readFileSync(file, "utf8");
 
   // Strip line comments first, then split on semicolons

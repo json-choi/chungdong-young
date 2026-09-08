@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { uploadImage } from "@/server/services/image-storage";
 import { requireAdmin } from "@/server/auth/guard";
 import { adminApiError, AdminApiError } from "@/server/api/errors";
 
@@ -40,9 +40,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const blob = await put(`announcements/${Date.now()}-${file.name}`, file, {
-      access: "public",
-    });
+    const blob = await uploadImage(file);
 
     return NextResponse.json({
       url: blob.url,
