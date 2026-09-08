@@ -2,7 +2,7 @@ name: Cloudflare deployment
 on:
   workflow_dispatch:
   push:
-    branches: [cloudflare-migration]
+    branches: [main, cloudflare-migration]
 permissions:
   contents: read
 concurrency:
