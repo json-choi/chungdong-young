@@ -1,6 +1,8 @@
 name: Cloudflare deployment
 on:
   workflow_dispatch:
+  push:
+    branches: [cloudflare-migration]
 permissions:
   contents: read
 concurrency:
