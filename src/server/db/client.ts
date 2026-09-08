@@ -1,7 +1,6 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { env } from "cloudflare:workers";
+import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./schema";
 
-const sql = neon(process.env.DATABASE_URL!);
-
-export const db = drizzle(sql, { schema });
+export const db = drizzle(env.DB, { schema });
+export { schema };

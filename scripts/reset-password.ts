@@ -1,9 +1,9 @@
-import { db } from "../src/server/db/client";
+import { db } from "./d1-client";
 import { sql } from "drizzle-orm";
 import { hashPassword } from "better-auth/crypto";
 
 async function main() {
-  const newPassword = process.env.RESET_PW ?? "admin1234";
+  const newPassword = process.env.RESET_PW ?? "";
 
   if (newPassword.length < 8) {
     console.error(
@@ -14,13 +14,13 @@ async function main() {
 
   const hash = await hashPassword(newPassword);
 
-  await db.execute(
+  await db.run(
     sql`UPDATE account SET password = ${hash} WHERE provider_id = 'credential'`
   );
 
   console.log("Password updated successfully");
   console.log("Email: admin@chungdong.church");
-  console.log(`Password: ${newPassword}`);
+
   process.exit(0);
 }
 

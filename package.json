@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "vinext dev",
+    "build": "vinext build",
+    "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "eslint",
     "dev:vinext": "vinext dev --port 3001",
     "build:vinext": "vinext build",
@@ -71,6 +71,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.54.5",
+    "@cloudflare/workers-types": "^5.20260908.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -26,5 +26,19 @@
       "id": "d167e514b11b4827a297e2d7bf04325b"
     }
   ],
-  "account_id": "0af3820c996f277b2f17ee446d03f60a"
+  "account_id": "0af3820c996f277b2f17ee446d03f60a",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "chungdong-young-migration-20260908",
+      "database_id": "19f34233-3169-45b3-891d-30a634b2c068",
+      "migrations_dir": "d1-migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "chungdong-young-images"
+    }
+  ]
 }

@@ -11,6 +11,7 @@ type FileRecord = { pathname: string; url: string; size: number; sha256: string;
 type Manifest = { preparedAt: string; rows: Row[]; files: FileRecord[] };
 
 const mode = process.argv[2] ?? "prepare";
+if (mode === "rewrite") throw new Error("Source PostgreSQL rewrites are disabled. The full migration updates only a verified D1 replica before cutover.");
 const directory = resolve(process.env.MIGRATION_BACKUP_DIR ?? ".migration");
 const manifestPath = resolve(directory, "manifest.json");
 const sql = neon(process.env.DATABASE_URL!);

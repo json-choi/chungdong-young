@@ -1,5 +1,4 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { del, put } from "@vercel/blob";
+import { S3Client } from "@aws-sdk/client-s3";
 
 function required(name: string): string {
   const value = process.env[name]?.trim();
@@ -25,19 +24,14 @@ export function r2PublicUrl(key: string) {
 }
 
 export async function uploadImage(file: File) {
-  // Explicit rollback mode keeps the same application usable on Vercel.
-  if (process.env.IMAGE_STORAGE_PROVIDER === "vercel") {
-    return put(`announcements/${Date.now()}-${file.name}`, file, { access: "public" });
-  }
   const extension = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" }[file.type];
   if (!extension) throw new Error("Unsupported image type");
   const key = `announcements/${crypto.randomUUID()}.${extension}`;
   const url = r2PublicUrl(key);
-  await r2Client().send(new PutObjectCommand({
-    Bucket: required("R2_BUCKET_NAME"), Key: key,
-    Body: new Uint8Array(await file.arrayBuffer()), ContentType: file.type,
-    CacheControl: "public, max-age=31536000, immutable",
-  }));
+  const { env } = await import("cloudflare:workers");
+  await env.MEDIA.put(key, await file.arrayBuffer(), {
+    httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" },
+  });
   return { url, pathname: `r2:${key}` };
 }
 
@@ -58,16 +52,10 @@ export function r2KeyFromReference(ref: string): string | null {
 }
 
 export async function deleteImages(refs: string[]) {
-  const keys = new Set<string>();
-  const legacy = new Set<string>();
-  for (const ref of refs) {
-    const key = r2KeyFromReference(ref);
-    if (key) keys.add(key);
-    else if (/^announcements\//.test(ref) || /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\//.test(ref)) legacy.add(ref);
-  }
+  const keys = new Set(refs.map(r2KeyFromReference).filter((key): key is string => key !== null));
+  // Legacy Blob objects remain intact for rollback. Only this app's R2 prefix is mutable.
   if (keys.size) {
-    const client = r2Client();
-    for (const Key of keys) await client.send(new DeleteObjectCommand({ Bucket: required("R2_BUCKET_NAME"), Key }));
+    const { env } = await import("cloudflare:workers");
+    await env.MEDIA.delete([...keys]);
   }
-  if (legacy.size) await del([...legacy]);
 }
