@@ -206,7 +206,7 @@ function logAdminError(
   };
 
   const tag = context ? `[admin:${context}]` : "[admin]";
-  // Serialize to a single JSON line so Vercel log search can match by `errorId`.
+  // Serialize to a single JSON line so Cloudflare log search can match by `errorId`.
   console.error(`${tag} ${errorId} ${kind}`, payload);
 }
 

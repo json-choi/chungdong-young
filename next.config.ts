@@ -3,13 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "*.public.blob.vercel-storage.com",
-      },
       ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL.replace(/\/$/, "") + "/**")] : []),
     ],
-    // Cache transformed images for 1 year — minimizes Vercel image optimization billing
+    // Cache transformed images for one year.
     minimumCacheTTL: 31_536_000,
     // Trim device sizes to what we actually use (mobile-first web)
     deviceSizes: [640, 828, 1200],

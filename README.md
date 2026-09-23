@@ -1,36 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 정동 젊은이 교회
 
-## Getting Started
+Next.js application hosted on Cloudflare Workers with D1 for application data and R2 for announcement images.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Install dependencies with `pnpm install`, then run `pnpm dev`. Set `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `R2_PUBLIC_URL` for the local environment. See `.env.example` for the variable names.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Production deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The [Cloudflare deployment workflow](.github/workflows/cloudflare.yml) builds and deploys each push to `main`. It uses the `cloudflare-production` GitHub environment and verifies the production page and its static assets at `https://chungdong.notish.cloud/`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The Worker, D1 database, R2 bucket, KV namespace, and route are defined in [`wrangler.jsonc`](wrangler.jsonc). Deployments require the workflow's `CLOUDFLARE_API_TOKEN` secret and `CLOUDFLARE_ACCOUNT_ID`, `NEXT_PUBLIC_BETTER_AUTH_URL`, and `R2_PUBLIC_URL` variables.

@@ -22,9 +22,8 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec tsx --test src/server/services/image-storage.test.ts
+      - run: node --import tsx --test src/server/services/image-storage.test.ts
       - run: pnpm exec tsc --noEmit
-      - run: pnpm exec tsx --test src/server/services/image-storage.test.ts
       - run: pnpm build:vinext
         env:
           NEXT_PUBLIC_BETTER_AUTH_URL: ${{ vars.NEXT_PUBLIC_BETTER_AUTH_URL }}

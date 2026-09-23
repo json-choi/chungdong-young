@@ -1,20 +1,7 @@
-import { S3Client } from "@aws-sdk/client-s3";
-
 function required(name: string): string {
   const value = process.env[name]?.trim();
   if (!value || value === "[SENSITIVE]") throw new Error(`${name} is not configured`);
   return value;
-}
-
-export function r2Client() {
-  return new S3Client({
-    region: "auto",
-    endpoint: `https://${required("R2_ACCOUNT_ID")}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: required("R2_ACCESS_KEY_ID"),
-      secretAccessKey: required("R2_SECRET_ACCESS_KEY"),
-    },
-  });
 }
 
 export function r2PublicUrl(key: string) {
@@ -53,7 +40,7 @@ export function r2KeyFromReference(ref: string): string | null {
 
 export async function deleteImages(refs: string[]) {
   const keys = new Set(refs.map(r2KeyFromReference).filter((key): key is string => key !== null));
-  // Legacy Blob objects remain intact for rollback. Only this app's R2 prefix is mutable.
+  // Only this app's R2 prefix is mutable.
   if (keys.size) {
     const { env } = await import("cloudflare:workers");
     await env.MEDIA.delete([...keys]);

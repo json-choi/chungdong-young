@@ -10,9 +10,9 @@ test("encodes object paths and resolves owned public image URLs", () => {
   assert.equal(r2KeyFromReference("r2:announcements/a.png"), "announcements/a.png");
 });
 
-test("does not treat a foreign host or Blob URL as an R2 delete target", () => {
+test("does not treat a foreign host as an R2 delete target", () => {
   assert.equal(r2KeyFromReference("https://images.example.test.evil.test/announcements/a.png"), null);
-  assert.equal(r2KeyFromReference("https://store.public.blob.vercel-storage.com/announcements/a.png"), null);
+  assert.equal(r2KeyFromReference("https://other.example.test/announcements/a.png"), null);
 });
 
 test("rejects traversal and keys outside the announcement prefix", () => {

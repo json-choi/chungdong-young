@@ -341,7 +341,7 @@ export default function AdminSettingsPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      모든 공지사항과 Blob 이미지가 영구 삭제됩니다. 관리자
+                      모든 공지사항과 저장된 이미지가 영구 삭제됩니다. 관리자
                       계정은 유지되지만, 이 작업은 되돌릴 수 없습니다.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

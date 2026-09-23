@@ -65,9 +65,6 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
-        {/* Warm up TLS/DNS to the image CDN before the first <Image> request */}
-        <link rel="preconnect" href="https://public.blob.vercel-storage.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://public.blob.vercel-storage.com" />
       </head>
       <body className="min-h-full flex flex-col font-sans">
         {children}

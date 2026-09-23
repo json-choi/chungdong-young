@@ -8,7 +8,7 @@ import { getAdminSession, unauthorizedResponse } from "@/server/auth/guard";
 import { ANNOUNCEMENTS_TAG } from "@/server/data/announcements";
 import { adminApiError } from "@/server/api/errors";
 
-// Hard-delete ALL announcements and clean up associated Vercel Blob assets.
+// Hard-delete all announcements and clean up associated R2 images.
 export async function POST() {
   if (!(await getAdminSession())) return unauthorizedResponse();
 

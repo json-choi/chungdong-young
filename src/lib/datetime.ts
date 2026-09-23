@@ -11,7 +11,7 @@
  *    no timezone — we always interpret them as KST via `fromZonedTime`.
  *  - Display always formats via `formatInTimeZone` so the output matches
  *    Korean local time even when the runtime's system timezone differs
- *    (Vercel edge, foreign admin, etc.).
+ *    (Cloudflare edge, foreign admin, etc.).
  */
 
 import { fromZonedTime, toZonedTime, formatInTimeZone } from "date-fns-tz";
